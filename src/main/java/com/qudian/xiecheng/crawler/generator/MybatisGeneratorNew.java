@@ -1,4 +1,4 @@
-package com.qudian.xiechengCrawler.generator;
+package com.qudian.xiecheng.crawler.generator;
 
 import com.baomidou.mybatisplus.core.exceptions.MybatisPlusException;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
