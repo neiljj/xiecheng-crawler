@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.Date;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -34,5 +36,17 @@ public class HotelInfoDO implements Serializable {
 
     private String hotelName;
 
+    private String url;
 
+    private String address;
+
+    private String score;
+
+    private String dpcount;
+
+    private String shortName ;
+
+    private String star;
+
+    private Date createTime;
 }

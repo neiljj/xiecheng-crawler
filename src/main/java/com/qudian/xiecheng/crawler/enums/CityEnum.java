@@ -1,10 +1,19 @@
 package com.qudian.xiecheng.crawler.enums;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author nijichang
  * @since 2020-10-30 14:46:41
  */
-public enum  CityEnum {
+@Getter
+@AllArgsConstructor
+public enum CityEnum {
 
     GUANGZHOU("32","广州"),
     DONGGUAN("223","东莞"),
@@ -29,18 +38,24 @@ public enum  CityEnum {
     private String code;
 
     private String name;
-    CityEnum(String code,String name){this.code = code;this.name = name;}
 
-    public CityEnum getByCode(String code){
+    public static CityEnum getByCode(String code){
         for(CityEnum cityEnum : values()){
             if(cityEnum.code.equals(code)) return cityEnum;
         }
         return null;
     }
-    public CityEnum getByName(String name){
+    public static CityEnum getByName(String name){
         for(CityEnum cityEnum : values()){
             if(cityEnum.name.equals(name)) return cityEnum;
         }
         return null;
+    }
+    public static List<String> toList(){
+        List<String> codes = new ArrayList<>();
+        for(CityEnum cityEnum : values()){
+            codes.add(cityEnum.code);
+        }
+        return codes;
     }
 }

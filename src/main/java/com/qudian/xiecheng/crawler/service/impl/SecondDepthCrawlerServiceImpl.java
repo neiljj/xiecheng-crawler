@@ -4,6 +4,7 @@ import cn.hutool.http.HttpUtil;
 import com.qudian.xiecheng.crawler.service.CrawlerService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Map;
 public class SecondDepthCrawlerServiceImpl implements CrawlerService {
 
     @Override
-    public String crawl(String uri, Map<String,Object> paramsMap){
+    public String crawl(String uri, String data, Map<String,String> headers, int timeout){
         return HttpUtil.get(uri);
     }
 }

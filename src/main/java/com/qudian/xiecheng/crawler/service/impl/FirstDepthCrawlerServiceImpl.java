@@ -1,9 +1,10 @@
 package com.qudian.xiecheng.crawler.service.impl;
 
-import cn.hutool.http.HttpUtil;
 import com.qudian.xiecheng.crawler.service.CrawlerService;
+import com.qudian.xiecheng.crawler.utils.HttpUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Map;
 public class FirstDepthCrawlerServiceImpl implements CrawlerService {
 
     @Override
-    public String crawl(String uri, Map<String,Object> paramsMap){
-        return HttpUtil.post(uri,paramsMap);
+    public String crawl(String uri, String data, Map<String,String> headers, int timepout){
+        return HttpUtils.doPost(uri,data,headers,timepout);
     }
 }
