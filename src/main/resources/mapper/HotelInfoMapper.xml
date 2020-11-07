@@ -1,5 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.qudian.xiechengCrawler.mapper.HotelInfoMapper">
+<mapper namespace="com.xiecheng.crawler.dao.HotelInfoMapper">
+    <resultMap id="BaseResultMap" type="com.xiecheng.crawler.entity.po.HotelInfoDO" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="city" property="city" jdbcType="VARCHAR" />
+        <result column="hotel_name" property="hotelName" jdbcType="VARCHAR" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="score" property="score" jdbcType="VARCHAR" />
+        <result column="dpcount" property="dpcount" jdbcType="VARCHAR" />
+        <result column="short_name" property="shortName" jdbcType="VARCHAR" />
+        <result column="star" property="star" jdbcType="VARCHAR" />
+        <result column="brand" property="brand" jdbcType="VARCHAR" />
+        <result column="type" property="type" jdbcType="VARCHAR" />
+        <result column="price" property="price" jdbcType="VARCHAR" />
+        <result column="param" property="param" jdbcType="VARCHAR" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
 
+    <insert id="insertType" parameterType="java.util.Map" >
+    insert into hotel_info (city, hotel_name,
+      url, address, score,
+      dpcount, short_name, star,brand,type,price,param,
+      update_time)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.city,jdbcType=VARCHAR}, #{item.hotelName,jdbcType=VARCHAR},
+      #{item.url,jdbcType=VARCHAR}, #{item.address,jdbcType=VARCHAR}, #{item.score,jdbcType=VARCHAR},
+      #{item.dpcount,jdbcType=VARCHAR}, #{item.shortName,jdbcType=VARCHAR}, #{item.star,jdbcType=VARCHAR},
+      #{item.brand,jdbcType=VARCHAR},#{item.type,jdbcType=VARCHAR}, #{item.price,jdbcType=VARCHAR},
+      #{item.param,jdbcType=VARCHAR},#{item.updateTime,jdbcType=TIMESTAMP}
+      )
+    </foreach>
+    ON DUPLICATE KEY UPDATE type=VALUES(type)
+  </insert>
+
+    <insert id="insertBrand" parameterType="java.util.Map" >
+        insert into hotel_info (city, hotel_name,
+        url, address, score,
+        dpcount, short_name, star,brand,type,price,param,
+        update_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.city,jdbcType=VARCHAR}, #{item.hotelName,jdbcType=VARCHAR},
+            #{item.url,jdbcType=VARCHAR}, #{item.address,jdbcType=VARCHAR}, #{item.score,jdbcType=VARCHAR},
+            #{item.dpcount,jdbcType=VARCHAR}, #{item.shortName,jdbcType=VARCHAR}, #{item.star,jdbcType=VARCHAR},
+            #{item.brand,jdbcType=VARCHAR},#{item.type,jdbcType=VARCHAR}, #{item.price,jdbcType=VARCHAR},
+            #{item.param,jdbcType=VARCHAR},#{item.updateTime,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE brand=VALUES(brand)
+  </insert>
 </mapper>
