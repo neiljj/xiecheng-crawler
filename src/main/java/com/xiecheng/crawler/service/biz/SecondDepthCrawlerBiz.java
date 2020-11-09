@@ -3,6 +3,7 @@ package com.xiecheng.crawler.service.biz;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.xiecheng.crawler.entity.RoomInfo;
 import com.xiecheng.crawler.entity.Task;
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
@@ -16,7 +17,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * 二层采集逻辑
  * @author nijichang
  * @since 2020-11-05 14:38:06
  */
@@ -40,6 +40,8 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
 
     @Resource
     private DetailInfoService detailInfoService;
+
+
 
     private String roomUrl = "https://hotels.ctrip.com/Domestic/tool/AjaxHote1RoomListForDetai1.aspx";
 
@@ -54,14 +56,12 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
             Future future = service.submit(new SecondDepthCrawlerThread());
             futures.add(future);
             await();
-        }
-        while(true){
+            //
             if(service.isTerminated()){
                 log.info("第二层任务采集完毕");
                 break;
             }
         }
-        service.shutdown();
     }
 
     @ThreadSafe
@@ -84,7 +84,9 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
                     log.info("爬虫链接超时，正在准备第{}次重试,当前二层url: {}", (i + 1), task.getParam());
                 }
             }
-            setDetailInfo(detailInfoDO,resultHtml);
+            if(StringUtils.isNotEmpty(resultHtml)) {
+                setDetailInfo(detailInfoDO, resultHtml);
+            }
             detailInfoDO.setHotelId(hotelId);
             detailInfoDO.setUrl(task.getParam());
             //获取房间信息
@@ -99,7 +101,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         }
     }
 
-    private void setDetailInfo(DetailInfoDO detailInfoDO,String resultHtml){
+    public void setDetailInfo(DetailInfoDO detailInfoDO,String resultHtml){
         detailInfoDO.setOpenTime(ReUtil.getGroup0("([0-9]*)(?=年开业)",resultHtml));
         detailInfoDO.setDecorateTime(ReUtil.getGroup0("([0-9]*)(?=年装修)",resultHtml));
         detailInfoDO.setRoomNum(ReUtil.getGroup0("([0-9]*)(?=间房)",resultHtml));
@@ -107,7 +109,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         detailInfoDO.setName(document.select("h2[class=cn_n]").text());
     }
 
-    private String getRoomInfo(String hotelId){
+    public String getRoomInfo(String hotelId){
         Map<String,String> headers = getMap(hotelId);
         String jsonResult = "";
         for(int i=0;i<retryNum;i++) {
@@ -120,13 +122,18 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
                 log.info("爬虫链接超时，正在准备第{}次重试,当前二层url酒店id: {}", (i + 1),hotelId);
             }
         }
-        JSONObject object = JSONObject.parseObject(jsonResult);
-        String html = object.getString("html");
-        List<RoomInfo> roomInfos = parseDom(html);
-        return JSONUtil.toJsonStr(roomInfos);
+        if(StringUtils.isNotEmpty(jsonResult)){
+            JSONObject object = JSONObject.parseObject(jsonResult);
+            String html = object.getString("html");
+            List<RoomInfo> roomInfos = parseDom(html);
+            return JSONUtil.toJsonStr(roomInfos);
+        }else {
+            return null;
+        }
+
     }
 
-    private List<RoomInfo> parseDom(String html){
+    public List<RoomInfo> parseDom(String html){
         List<RoomInfo> roomInfos = new ArrayList<>();
         Document document = Jsoup.parse(html);
         Elements rooms = document.select("tr");
@@ -151,7 +158,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         }
         return roomInfos;
     }
-    private Map<String,String> getMap(String hotelId){
+    public Map<String,String> getMap(String hotelId){
         Map<String,String> headers = new HashMap<>();
         headers.put("Content-Type","application/x-www-form-urlencoded; charset=UTF-8");
         headers.put("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36");

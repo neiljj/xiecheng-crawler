@@ -27,11 +27,11 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 
 /**
+ * 一层采集逻辑
  * @author nijichang
  * @since 2020-10-30 18:57:43
  */
@@ -104,20 +104,22 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
                     log.info("爬虫链接超时，正在准备第{}次重试,当前参数: {}", (i + 1), task.getParam());
                 }
             }
-            //只有初始化的url需要将翻页url加入队列
-            if(task.getDepthTag() == 0){
-                taskToQueue(jsonResult,task.getParam(),task.getParamTag());
-            }
-            List<HotelInfoDO> infos = getHotelInfo(jsonResult,task.getParam(),task.getParamTag(),task.getDepthTag());
-            try {
-                if (task.getParamTag() == 1) {
-                    //参数为城市+类型
-                    hotelnfoService.insertBrand(infos);
-                }else if(task.getParamTag() == 2){
-                    hotelnfoService.insertType(infos);
+            if(StringUtils.isNotEmpty(jsonResult)) {
+                //只有初始化的url需要将翻页url加入队列
+                if(task.getDepthTag() == 0){
+                    taskToQueue(jsonResult,task.getParam(),task.getParamTag());
                 }
-            }catch (Exception e){
-                log.info("批量保存失败，失败信息{}",e.getMessage());
+                List<HotelInfoDO> infos = getHotelInfo(jsonResult, task.getParam(), task.getParamTag(), task.getDepthTag());
+                try {
+                    if (task.getParamTag() == 1) {
+                        //参数为城市+类型
+                        hotelnfoService.insertBrand(infos);
+                    }else if(task.getParamTag() == 2){
+                        hotelnfoService.insertType(infos);
+                    }
+                }catch (Exception e){
+                    log.info("批量保存失败，失败信息{}",e.getMessage());
+                }
             }
             return null;
         }

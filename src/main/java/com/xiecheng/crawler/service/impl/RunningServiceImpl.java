@@ -41,6 +41,5 @@ public class RunningServiceImpl implements RunningService {
             }
         }
         service.shutdown();
-       // firstDepthCrawlerBiz.process();
     }
 }
