@@ -67,30 +67,28 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
 
         @Override
         public String call() {
-            if (!TaskQueue.task2Queue.isEmpty()) {
-                Task task = TaskQueue.task2Queue.poll();
-                log.info("当前第二层队列任务：{}", TaskQueue.task2Queue.size());
+            Task task = TaskQueue.task2Queue.poll();
+            log.info("当前第二层队列任务：{}", TaskQueue.task2Queue.size());
 
-                DetailInfoDO detailInfoDO = new DetailInfoDO();
-                String hotelId = ReUtil.getGroup0("([0-9]*)(?=.html)", task.getParam());
+            DetailInfoDO detailInfoDO = new DetailInfoDO();
+            String hotelId = ReUtil.getGroup0("([0-9]*)(?=.html)", task.getParam());
 
-                log.info("二层url：{}正在执行", task.getParam());
-                String resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(), task.getParam(), null, 2000);
-                taskNum.incrementAndGet();
+            log.info("二层url：{}正在执行", task.getParam());
+            String resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(), task.getParam(), null, 2000);
+            taskNum.incrementAndGet();
 
-                if (StringUtils.isNotEmpty(resultHtml)) {
-                    setDetailInfo(detailInfoDO, resultHtml);
-                }
-                detailInfoDO.setHotelId(hotelId);
-                detailInfoDO.setUrl(task.getParam());
-                //获取房间信息
-                detailInfoDO.setRoomInfo(getRoomInfo(hotelId));
-                //数据库插入
-                try {
-                    detailInfoService.save(detailInfoDO);
-                } catch (Exception e) {
-                    log.info("酒店详情保存失败，酒店id:{},失败信息:{}", hotelId, e.getMessage());
-                }
+            if (StringUtils.isNotEmpty(resultHtml)) {
+                setDetailInfo(detailInfoDO, resultHtml);
+            }
+            detailInfoDO.setHotelId(hotelId);
+            detailInfoDO.setUrl(task.getParam());
+            //获取房间信息
+            detailInfoDO.setRoomInfo(getRoomInfo(hotelId));
+            //数据库插入
+            try {
+                detailInfoService.save(detailInfoDO);
+            } catch (Exception e) {
+                log.info("酒店详情保存失败，酒店id:{},失败信息:{}", hotelId, e.getMessage());
             }
             return null;
         }

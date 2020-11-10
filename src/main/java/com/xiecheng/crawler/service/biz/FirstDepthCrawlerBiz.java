@@ -85,32 +85,30 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
     public class FirstDepthCrawlerThread implements Runnable{
         @Override
         public void run(){
-            if(!TaskQueue.taskQueue.isEmpty()) {
-                Map<String,String> headers = getMap();
-                Task task = TaskQueue.taskQueue.poll();
-                log.info("当前第一层队列任务：{}", TaskQueue.taskQueue.size());
+            Map<String, String> headers = getMap();
+            Task task = TaskQueue.taskQueue.poll();
+            log.info("当前第一层队列任务：{}", TaskQueue.taskQueue.size());
 
-                log.info("参数{}正在执行", task.getParam());
-                //异常处理由切面完成
-                String jsonResult = firstDepthCrawlerServiceImpl.crawl(uri, task.getParam(), headers, 2000);
-                taskNum.incrementAndGet();
+            log.info("参数{}正在执行", task.getParam());
+            //异常处理由切面完成
+            String jsonResult = firstDepthCrawlerServiceImpl.crawl(uri, task.getParam(), headers, 2000);
+            taskNum.incrementAndGet();
 
-                if (StringUtils.isNotEmpty(jsonResult)) {
-                    //只有初始化的url需要将翻页url加入队列
-                    if (task.getDepthTag() == 0) {
-                        taskToQueue(jsonResult, task.getParam(), task.getParamTag());
+            if (StringUtils.isNotEmpty(jsonResult)) {
+                //只有初始化的url需要将翻页url加入队列
+                if (task.getDepthTag() == 0) {
+                    taskToQueue(jsonResult, task.getParam(), task.getParamTag());
+                }
+                List<HotelInfoDO> infos = getHotelInfo(jsonResult, task.getParam(), task.getParamTag(), task.getDepthTag());
+                try {
+                    if (task.getParamTag() == 1) {
+                        //参数为城市+类型
+                        hotelnfoService.insertBrand(infos);
+                    } else if (task.getParamTag() == 2) {
+                        hotelnfoService.insertType(infos);
                     }
-                    List<HotelInfoDO> infos = getHotelInfo(jsonResult, task.getParam(), task.getParamTag(), task.getDepthTag());
-                    try {
-                        if (task.getParamTag() == 1) {
-                            //参数为城市+类型
-                            hotelnfoService.insertBrand(infos);
-                        } else if (task.getParamTag() == 2) {
-                            hotelnfoService.insertType(infos);
-                        }
-                    } catch (Exception e) {
-                        log.info("批量保存失败，失败信息{}", e.getMessage());
-                    }
+                } catch (Exception e) {
+                    log.info("批量保存失败，失败信息{}", e.getMessage());
                 }
             }
         }
