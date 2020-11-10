@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2020-09-03 17:36:43
  */
 @Configuration
-@MapperScan("com.xiecheng.crawler.dao")
+@MapperScan("com.xiecheng.crawler.mapper")
 public class MybatisPlusConfig {
 
     @Bean

@@ -2,6 +2,7 @@ package com.xiecheng.crawler.utils;
 
 import cn.hutool.http.HttpUtil;
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -16,7 +17,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -24,7 +28,10 @@ import java.util.Map;
 /**
  * 封装http get post
  */
+@Slf4j
 public class HttpUtils {
+
+    private static Integer retryNum = 2;
 
     private static  final Gson gson = new Gson();
     /**
@@ -37,36 +44,35 @@ public class HttpUtils {
         Map<String,Object> map = new HashMap<>();
         CloseableHttpClient httpClient =  HttpClients.createDefault();
         //设置参数
-        RequestConfig requestConfig =  RequestConfig.custom().setConnectTimeout(timeout) //连接超时
-                .setConnectionRequestTimeout(timeout)//请求超时
+        RequestConfig requestConfig =  RequestConfig.custom().setConnectTimeout(timeout)
+                .setConnectionRequestTimeout(timeout)
                 .setSocketTimeout(timeout)
-                .setRedirectsEnabled(true)  //允许自动重定向
+                .setRedirectsEnabled(true)
                 .build();
 
         HttpGet httpGet = new HttpGet(url);
         httpGet.setConfig(requestConfig);
-        headers.forEach((k,v) -> {
-            httpGet.addHeader(k,v);
-        });
-
-        try{
-           // 获取请求响应结果
-           HttpResponse httpResponse = httpClient.execute(httpGet);
-           if(httpResponse.getStatusLine().getStatusCode() == 200){
-               //这里注意设置默认字节编码格式 为 utf-8
-               String result = EntityUtils.toString(httpResponse.getEntity(),"UTF-8");
-               //解决乱码
-               return result;
-           }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }finally {
-            try {
-                httpClient.close();
+        headers.forEach((k,v) -> httpGet.addHeader(k,v));
+        for(int i=0;i<retryNum;i++){
+            try{
+               // 获取请求响应结果
+               HttpResponse httpResponse = httpClient.execute(httpGet);
+               if(httpResponse.getStatusLine().getStatusCode() == 200){
+                   //这里注意设置默认字节编码格式 为 utf-8
+                   String result = EntityUtils.toString(httpResponse.getEntity(),"UTF-8");
+                   //解决乱码
+                   return result;
+               }
+               break;
             }catch (Exception e){
-                e.printStackTrace();
+                log.info("爬虫链接:{}超时，正在准备第{}次重试", url,(i + 1));
+                continue;
             }
+        }
+        try {
+            httpClient.close();
+        }catch (IOException e){
+            e.printStackTrace();
         }
         return null;
     }
@@ -79,37 +85,37 @@ public class HttpUtils {
         CloseableHttpClient httpClient =  HttpClients.createDefault();
 
         //超时设置
-        RequestConfig requestConfig =  RequestConfig.custom().setConnectTimeout(timeout) //连接超时
-                .setConnectionRequestTimeout(timeout)//请求超时
+        RequestConfig requestConfig =  RequestConfig.custom().setConnectTimeout(timeout)
+                .setConnectionRequestTimeout(timeout)
                 .setSocketTimeout(timeout)
-                .setRedirectsEnabled(true)  //允许自动重定向
+                .setRedirectsEnabled(true)
                 .build();
 
         HttpPost httpPost  = new HttpPost(url);
         httpPost.setConfig(requestConfig);
-        headers.forEach((k,v) -> {
-            httpPost.addHeader(k,v);
-        });
-        if(data != null && data instanceof  String){ //使用字符串传参
+        headers.forEach((k,v) -> httpPost.addHeader(k,v));
+        if(data != null && data instanceof  String){
             StringEntity stringEntity = new StringEntity(data,"UTF-8");
             httpPost.setEntity(stringEntity);
         }
-
-        try{
-            CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
-            HttpEntity httpEntity = httpResponse.getEntity();
-            if(httpResponse.getStatusLine().getStatusCode() == 200){
-                String result = EntityUtils.toString(httpEntity,"utf-8");
-                return result;
+        for(int i=0;i<retryNum;i++) {
+            try {
+                CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                if (httpResponse.getStatusLine().getStatusCode() == 200) {
+                    String result = EntityUtils.toString(httpEntity, "utf-8");
+                    return result;
+                }
+                break;
+            } catch (Exception e) {
+                log.info("爬虫链接:{}超时，正在准备第{}次重试", url,(i + 1));
+                continue;
             }
-        }catch (Exception e){
+        }
+        try {
+            httpClient.close();
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            try{
-                httpClient.close();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
         }
         return null;
     }

@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.dao;
+package com.xiecheng.crawler.mapper;
 
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;

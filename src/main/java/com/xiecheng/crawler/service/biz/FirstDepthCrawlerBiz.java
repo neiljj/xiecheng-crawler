@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.xiecheng.crawler.service.HotelnfoService;
+import com.xiecheng.crawler.service.core.HotelnfoService;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.enums.CityEnum;
 import com.xiecheng.crawler.enums.StarEnum;
@@ -57,71 +57,62 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
      */
     @Override
     public void process(){
-
         ExecutorService service = new ThreadPoolExecutor(threadNum,Runtime.getRuntime().availableProcessors()*2,
                 5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.CallerRunsPolicy());
-        List<Future> futures = new ArrayList<>();
-        String task = "";
+        int i = 0;
         while(!TaskQueue.taskQueue.isEmpty()){
-            task = TaskQueue.taskQueue.peek().toString();
-            Future<String> future = service.submit(new FirstDepthCrawlerThread(task));
-            futures.add(future);
-            await();
+            service.execute(new FirstDepthCrawlerThread());
+            //队列只有一个任务时，需要等待将翻页加入队列
+            if(i == 0){
+                await();
+                i++;
+            }
         }
+        //线程池首先需要shutdown再判断isTerminated
+        service.shutdown();
         while(true){
             if(service.isTerminated()){
                 log.info("第一层任务采集完毕");
                 break;
             }
         }
-        service.shutdown();
     }
     /**
      * 爬虫主要逻辑
      * 1.从queue中取任务进行爬取2.将后面的任务加入队列中，第二层任务入队列
      */
     @ThreadSafe
-    public class FirstDepthCrawlerThread implements Callable<String>{
-
-        String threadName;
-
-        private FirstDepthCrawlerThread(String tname){this.threadName = tname;}
-
+    public class FirstDepthCrawlerThread implements Runnable{
         @Override
-        public String call(){
-            Map<String,String> headers = getMap();
-            Task task = TaskQueue.taskQueue.poll();
-            log.info("当前第一层队列任务：{}",TaskQueue.taskQueue.size());
-            String jsonResult = "";
-            for(int i=0;i<retryNum;i++) {
-                log.info("参数{}正在执行第{}次爬取任务",task.getParam(),i+1);
-                try {
-                    jsonResult = firstDepthCrawlerServiceImpl.crawl(uri, task.getParam(), headers, 2000);
-                    taskNum.incrementAndGet();
-                    break;
-                }catch (Exception e){
-                    e.printStackTrace();
-                    log.info("爬虫链接超时，正在准备第{}次重试,当前参数: {}", (i + 1), task.getParam());
-                }
-            }
-            if(StringUtils.isNotEmpty(jsonResult)) {
-                //只有初始化的url需要将翻页url加入队列
-                if(task.getDepthTag() == 0){
-                    taskToQueue(jsonResult,task.getParam(),task.getParamTag());
-                }
-                List<HotelInfoDO> infos = getHotelInfo(jsonResult, task.getParam(), task.getParamTag(), task.getDepthTag());
-                try {
-                    if (task.getParamTag() == 1) {
-                        //参数为城市+类型
-                        hotelnfoService.insertBrand(infos);
-                    }else if(task.getParamTag() == 2){
-                        hotelnfoService.insertType(infos);
+        public void run(){
+            if(!TaskQueue.taskQueue.isEmpty()) {
+                Map<String,String> headers = getMap();
+                Task task = TaskQueue.taskQueue.poll();
+                log.info("当前第一层队列任务：{}", TaskQueue.taskQueue.size());
+
+                log.info("参数{}正在执行", task.getParam());
+                //异常处理由切面完成
+                String jsonResult = firstDepthCrawlerServiceImpl.crawl(uri, task.getParam(), headers, 2000);
+                taskNum.incrementAndGet();
+
+                if (StringUtils.isNotEmpty(jsonResult)) {
+                    //只有初始化的url需要将翻页url加入队列
+                    if (task.getDepthTag() == 0) {
+                        taskToQueue(jsonResult, task.getParam(), task.getParamTag());
                     }
-                }catch (Exception e){
-                    log.info("批量保存失败，失败信息{}",e.getMessage());
+                    List<HotelInfoDO> infos = getHotelInfo(jsonResult, task.getParam(), task.getParamTag(), task.getDepthTag());
+                    try {
+                        if (task.getParamTag() == 1) {
+                            //参数为城市+类型
+                            hotelnfoService.insertBrand(infos);
+                        } else if (task.getParamTag() == 2) {
+                            hotelnfoService.insertType(infos);
+                        }
+                    } catch (Exception e) {
+                        log.info("批量保存失败，失败信息{}", e.getMessage());
+                    }
                 }
             }
-            return null;
         }
     }
 

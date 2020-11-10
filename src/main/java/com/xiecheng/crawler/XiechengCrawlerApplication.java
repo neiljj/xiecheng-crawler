@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication(scanBasePackages = {"com.xiecheng.crawler.*"})
 @Slf4j
 @EnableConfigurationProperties
-@MapperScan("com.xiecheng.crawler.dao")
+@MapperScan("com.xiecheng.crawler.mapper")
 @EnableAsync
 public class XiechengCrawlerApplication {
 

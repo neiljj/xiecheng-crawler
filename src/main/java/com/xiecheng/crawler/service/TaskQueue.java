@@ -1,9 +1,11 @@
 package com.xiecheng.crawler.service;
 
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.http.HttpUtil;
 import com.xiecheng.crawler.entity.Task;
 import com.xiecheng.crawler.enums.CityEnum;
 import com.xiecheng.crawler.enums.TypeEnum;
+import com.xiecheng.crawler.service.core.CityService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,6 +14,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Component
 public class TaskQueue {
 
+    @Resource
+    private CityService cityService;
     /**
      * 第一层采集队列
      */
@@ -42,9 +47,13 @@ public class TaskQueue {
      */
     public static Map<String,String> brands = new LinkedHashMap<>();
 
-    private static String PARAM_STRING = "StartTime=2020-12-12&DepTime=2020-12-13&cityId=";
+    /**
+     * 请求参数，城市为必填项
+     */
+    private static String PARAM_STRING = "cityId=";
 
     private final String URL = "https://hotels.ctrip.com/hotel/beijing1#ctm_ref=hod_hp_sb_lst";
+
 
     /**
      *初始化对列
@@ -52,38 +61,49 @@ public class TaskQueue {
      */
     @PostConstruct
     public void initQueue(){
-        List<String> cityCodes = CityEnum.toList();
-        List<String> typeCodes = TypeEnum.toList();
-        Set<String> brandCodes = getBrandMap().keySet();
-
-        cityCodes.forEach(city -> {
-            //1.城市+类型
-            typeCodes.forEach(type -> {
-                Task task = new Task();
-                task.setParamTag(1);
-                task.setDepthTag(0);
-                task.setParam(PARAM_STRING + city + "&type=" + type);
-                try {
-                    taskQueue.put(task);
-                }catch (InterruptedException e){
-                    log.error("添加队列发生错误{}",e.getMessage());
-                }
-            });
-            //1.城市+品牌
-            brandCodes.forEach(brand -> {
-                Task task = new Task();
-                task.setParamTag(2);
-                task.setDepthTag(0);
-                task.setParam(PARAM_STRING + city + "&brand=" + brand);
-                try {
-                    taskQueue.put(task);
-                }catch (InterruptedException e){
-                    log.error("添加队列发生错误{}",e.getMessage());
-                }
-            });
-
-        });
+//        List<String> cityCodes = CityEnum.toList();
+//        List<String> typeCodes = TypeEnum.toList();
+//        Set<String> brandCodes = getBrandMap().keySet();
+//
+//        cityCodes.forEach(city -> {
+//            //1.城市+类型
+//            typeCodes.forEach(type -> {
+//                Task task = new Task();
+//                task.setParamTag(1);
+//                task.setDepthTag(0);
+//                task.setParam(PARAM_STRING + city + "&type=" + type);
+//                try {
+//                    taskQueue.put(task);
+//                }catch (InterruptedException e){
+//                    log.error("添加队列发生错误{}",e.getMessage());
+//                }
+//            });
+//            //1.城市+品牌
+//            brandCodes.forEach(brand -> {
+//                Task task = new Task();
+//                task.setParamTag(2);
+//                task.setDepthTag(0);
+//                task.setParam(PARAM_STRING + city + "&brand=" + brand);
+//                try {
+//                    taskQueue.put(task);
+//                }catch (InterruptedException e){
+//                    log.error("添加队列发生错误{}",e.getMessage());
+//                }
+//            });
+//
+//        });
+        Task task = new Task();
+        task.setParam("StartTime=2020-12-12&DepTime=2020-12-13&cityId=17&type=1 ");
+        task.setDepthTag(0);
+        task.setParamTag(2);
+        try {
+            taskQueue.put(task);
+        }catch(InterruptedException e){
+            log.error("添加队列发生错误{}",e.getMessage());
+        }
     }
+
+
 
     public static void addQueue(Task task){
         try {
@@ -125,4 +145,22 @@ public class TaskQueue {
         }
         return brands;
     }
+
+    public void saveCity(){
+        String html = HttpUtil.get("https://hotels.ctrip.com/Domestic/Tool/AjaxGetCitySuggestion.aspx");
+        List<String> citys = ReUtil.findAll("(?<=\\{)(.*?)(?=\\})",html,1);
+
+    }
+    public static void main(String[] args){
+        String html = HttpUtil.get("https://hotels.ctrip.com/Domestic/Tool/AjaxGetCitySuggestion.aspx");
+        List<String> citys = ReUtil.findAll("(?<=\\{)(.*?)(?=\\})",html,1);
+        citys.forEach(t -> {
+            String city = ReUtil.getGroup0("(?<=display:\")(.*?)(?=\")",t);
+            String cityId = ReUtil.getGroup0("[0-9]*(?=\",group)",t);
+            System.out.println(city + " "+cityId);
+
+        });
+
+    }
+
 }

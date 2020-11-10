@@ -8,7 +8,7 @@ import com.xiecheng.crawler.entity.RoomInfo;
 import com.xiecheng.crawler.entity.Task;
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
 import com.xiecheng.crawler.service.CrawlerService;
-import com.xiecheng.crawler.service.DetailInfoService;
+import com.xiecheng.crawler.service.core.DetailInfoService;
 import com.xiecheng.crawler.service.TaskQueue;
 import com.xiecheng.crawler.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +20,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,22 +42,19 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
     @Resource
     private DetailInfoService detailInfoService;
 
-
-
     private String roomUrl = "https://hotels.ctrip.com/Domestic/tool/AjaxHote1RoomListForDetai1.aspx";
 
     @Override
     public void process() {
-        ExecutorService service = new ThreadPoolExecutor(threadNum, Runtime.getRuntime().availableProcessors() * 2,
-                5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
+        ExecutorService service = new ThreadPoolExecutor(threadNum,Runtime.getRuntime().availableProcessors()*2,
+                5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.CallerRunsPolicy());
         List<Future> futures = new ArrayList<>();
-
-        //todo 这里会有bug
         while (!TaskQueue.task2Queue.isEmpty()) {
             Future future = service.submit(new SecondDepthCrawlerThread());
             futures.add(future);
-            await();
-            //
+        }
+        service.shutdown();
+        while(true){
             if(service.isTerminated()){
                 log.info("第二层任务采集完毕");
                 break;
@@ -68,34 +66,31 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
     public class SecondDepthCrawlerThread implements Callable<String> {
 
         @Override
-        public String call(){
-            Task task = TaskQueue.task2Queue.poll();
-            log.info("当前第二层队列任务：{}",TaskQueue.task2Queue.size());
-            String resultHtml = "";
-            DetailInfoDO detailInfoDO = new DetailInfoDO();
-            String hotelId = ReUtil.getGroup0("([0-9]*)(?=.html)",task.getParam());
-            for(int i=0;i<retryNum;i++) {
-                log.info("二层url：{}正在执行第{}次爬取任务",task.getParam(),i+1);
-                try {
-                    resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(),task.getParam(), null, 2000);
-                    taskNum.incrementAndGet();
-                    break;
-                }catch (Exception e){
-                    log.info("爬虫链接超时，正在准备第{}次重试,当前二层url: {}", (i + 1), task.getParam());
+        public String call() {
+            if (!TaskQueue.task2Queue.isEmpty()) {
+                Task task = TaskQueue.task2Queue.poll();
+                log.info("当前第二层队列任务：{}", TaskQueue.task2Queue.size());
+
+                DetailInfoDO detailInfoDO = new DetailInfoDO();
+                String hotelId = ReUtil.getGroup0("([0-9]*)(?=.html)", task.getParam());
+
+                log.info("二层url：{}正在执行", task.getParam());
+                String resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(), task.getParam(), null, 2000);
+                taskNum.incrementAndGet();
+
+                if (StringUtils.isNotEmpty(resultHtml)) {
+                    setDetailInfo(detailInfoDO, resultHtml);
                 }
-            }
-            if(StringUtils.isNotEmpty(resultHtml)) {
-                setDetailInfo(detailInfoDO, resultHtml);
-            }
-            detailInfoDO.setHotelId(hotelId);
-            detailInfoDO.setUrl(task.getParam());
-            //获取房间信息
-            detailInfoDO.setRoomInfo(getRoomInfo(hotelId));
-            //数据库插入
-            try{
-                detailInfoService.save(detailInfoDO);
-            }catch (Exception e){
-                log.info("酒店详情保存失败，酒店id:{},失败信息:{}",hotelId,e.getMessage());
+                detailInfoDO.setHotelId(hotelId);
+                detailInfoDO.setUrl(task.getParam());
+                //获取房间信息
+                detailInfoDO.setRoomInfo(getRoomInfo(hotelId));
+                //数据库插入
+                try {
+                    detailInfoService.save(detailInfoDO);
+                } catch (Exception e) {
+                    log.info("酒店详情保存失败，酒店id:{},失败信息:{}", hotelId, e.getMessage());
+                }
             }
             return null;
         }
@@ -111,17 +106,8 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
 
     public String getRoomInfo(String hotelId){
         Map<String,String> headers = getMap(hotelId);
-        String jsonResult = "";
-        for(int i=0;i<retryNum;i++) {
-            log.info("酒店id{}正在执行第{}次爬取房间信息任务",hotelId,i+1);
-            try {
-                jsonResult = HttpUtils.doGet(roomUrl + "?hotel=" + hotelId,headers,2000);
-                break;
-            }catch (Exception e){
-                e.printStackTrace();
-                log.info("爬虫链接超时，正在准备第{}次重试,当前二层url酒店id: {}", (i + 1),hotelId);
-            }
-        }
+        log.info("酒店id{}正在执行",hotelId);
+        String jsonResult = HttpUtils.doGet(roomUrl + "?hotel=" + hotelId,headers,2000);
         if(StringUtils.isNotEmpty(jsonResult)){
             JSONObject object = JSONObject.parseObject(jsonResult);
             String html = object.getString("html");

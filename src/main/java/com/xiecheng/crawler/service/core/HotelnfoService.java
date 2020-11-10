@@ -1,7 +1,7 @@
-package com.xiecheng.crawler.service;
+package com.xiecheng.crawler.service.core;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.xiecheng.crawler.dao.HotelInfoMapper;
+import com.xiecheng.crawler.mapper.HotelInfoMapper;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

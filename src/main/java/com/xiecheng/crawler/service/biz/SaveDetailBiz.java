@@ -4,13 +4,13 @@ import cn.hutool.bloomfilter.BitMapBloomFilter;
 import cn.hutool.core.util.ReUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.xiecheng.crawler.entity.Task;
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.service.CrawlerService;
-import com.xiecheng.crawler.service.DetailInfoService;
-import com.xiecheng.crawler.service.HotelnfoService;
-import com.xiecheng.crawler.service.TaskQueue;
+import com.xiecheng.crawler.service.core.DetailInfoService;
+import com.xiecheng.crawler.service.core.HotelnfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.jcip.annotations.ThreadSafe;
 import org.springframework.stereotype.Service;
@@ -47,24 +47,24 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
     @Override
     public void process(){
         saveTask2Queue();
-        ExecutorService service = new ThreadPoolExecutor(threadNum*2,Runtime.getRuntime().availableProcessors()*4,
-                5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(100000),new ThreadPoolExecutor.CallerRunsPolicy());
+        ExecutorService service = new ThreadPoolExecutor(threadNum,Runtime.getRuntime().availableProcessors()*2,
+                5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.CallerRunsPolicy());
         while(!taskQueue.isEmpty()){
             service.submit(new SaveDetailCrawlerThread());
-            await();
-
         }
+        service.shutdown();
         while(true){
             if(service.isTerminated()){
                 log.info("任务采集完毕");
                 break;
             }
         }
-        service.shutdown();
     }
 
     public void saveTask2Queue(){
-        Wrapper<HotelInfoDO> wrapper = new QueryWrapper<HotelInfoDO>().orderByDesc("create_time");
+        Wrapper<HotelInfoDO> wrapper = new QueryWrapper<HotelInfoDO>()
+                .le("create_time","2020-11-06 17:05:07")
+                .orderByDesc("create_time");
         List<HotelInfoDO> hotelInfos = hotelnfoService.list(wrapper);
         hotelInfos.forEach(t -> {
             String url = ReUtil.getGroup0("(.*)(?=\\?)",t.getUrl());
@@ -87,30 +87,27 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
 
         @Override
         public String call(){
-            Task task = taskQueue.poll();
-            log.info("当前队列任务：{}",taskQueue.size());
-            String resultHtml = "";
-            DetailInfoDO detailInfoDO = new DetailInfoDO();
-            String hotelId = ReUtil.getGroup0("([0-9]*)(?=.html)",task.getParam());
-            for(int i=0;i<retryNum;i++) {
-                log.info("url：{}正在执行第{}次爬取任务",task.getParam(),i+1);
-                try {
-                    resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(),task.getParam(), null, 2000);
-                    break;
-                }catch (Exception e){
-                    log.info("爬虫链接超时，正在准备第{}次重试,当前二层url: {}", (i + 1), task.getParam());
+            if(!taskQueue.isEmpty()) {
+                Task task = taskQueue.poll();
+                log.info("当前队列任务：{}", taskQueue.size());
+                DetailInfoDO detailInfoDO = new DetailInfoDO();
+                String hotelId = ReUtil.getGroup0("([0-9]*)(?=.html)", task.getParam());
+                log.info("url：{}正在执行", task.getParam());
+
+                String resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(), task.getParam(), null, 2000);
+                if (StringUtils.isNotEmpty(resultHtml)) {
+                    secondDepthCrawlerBiz.setDetailInfo(detailInfoDO, resultHtml);
                 }
-            }
-            secondDepthCrawlerBiz.setDetailInfo(detailInfoDO,resultHtml);
-            detailInfoDO.setHotelId(hotelId);
-            detailInfoDO.setUrl(task.getParam());
-            //获取房间信息
-            detailInfoDO.setRoomInfo(secondDepthCrawlerBiz.getRoomInfo(hotelId));
-            //数据库插入
-            try{
-                detailInfoService.save(detailInfoDO);
-            }catch (Exception e){
-                log.info("酒店详情保存失败，酒店id:{},失败信息:{}",hotelId,e.getMessage());
+                detailInfoDO.setHotelId(hotelId);
+                detailInfoDO.setUrl(task.getParam());
+                //获取房间信息
+                detailInfoDO.setRoomInfo(secondDepthCrawlerBiz.getRoomInfo(hotelId));
+                //数据库插入
+                try {
+                    detailInfoService.save(detailInfoDO);
+                } catch (Exception e) {
+                    log.info("酒店详情保存失败，酒店id:{},失败信息:{}", hotelId, e.getMessage());
+                }
             }
             return null;
         }

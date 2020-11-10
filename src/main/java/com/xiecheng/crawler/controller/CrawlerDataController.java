@@ -7,14 +7,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xiecheng.crawler.entity.ResponseResult;
+import com.xiecheng.crawler.entity.po.CustomerDO;
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.entity.vo.req.QryDetailInfoReq;
 import com.xiecheng.crawler.entity.vo.req.QryHotelInfoReq;
-import com.xiecheng.crawler.service.DetailInfoService;
-import com.xiecheng.crawler.service.HotelnfoService;
+import com.xiecheng.crawler.service.core.CustomerService;
+import com.xiecheng.crawler.service.core.DetailInfoService;
+import com.xiecheng.crawler.service.core.HotelnfoService;
+import com.xiecheng.crawler.utils.JwtUtils;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,14 +32,15 @@ import java.util.Date;
  * @since 2020-11-07 14:34:43
  */
 @Controller
-@RequestMapping("/api/data")
+@RequestMapping("/manage")
 @Slf4j
 public class CrawlerDataController {
     @Resource
     private HotelnfoService hotelnfoService;
     @Resource
     private DetailInfoService detailInfoService;
-
+    @Resource
+    private CustomerService customerService;
     @PostMapping("/show_hotel_info")
     @ResponseBody
     public ResponseResult showHotelInfo(QryHotelInfoReq req){
@@ -75,5 +81,15 @@ public class CrawlerDataController {
         IPage<DetailInfoDO> page = detailInfoService.page(new Page<>(req.getPage(),req.getPer()),wrapper);
         log.info("分页查询酒店详情成功{}", JSONUtil.toJsonStr(page));
         return ResponseResult.success(page);
+    }
+
+    @RequestMapping("/center")
+    public String index(String token, Model model){
+        Claims claims = JwtUtils.checkJWT(token);
+        Integer customerId = (Integer) claims.get("id");
+        CustomerDO customerDO = customerService.getById(customerId);
+        customerDO.setPassword(null);
+        model.addAttribute("customer",customerDO);
+        return "manage_center";
     }
 }

@@ -49,7 +49,7 @@ public class MybatisGeneratorNew {
         GlobalConfig gc = new GlobalConfig();
         final String projectPath = System.getProperty("user.dir");
         System.out.println(projectPath);
-        gc.setOutputDir(projectPath + "/employee-dao/src/main/java");
+        gc.setOutputDir(projectPath + "/src/main/java");
         gc.setAuthor("employee");
         gc.setOpen(false);
         gc.setFileOverride(true);
@@ -58,7 +58,6 @@ public class MybatisGeneratorNew {
 
         DataSourceConfig dsc = new DataSourceConfig();
         dsc.setUrl("jdbc:mysql://127.0.0.1:3306/xiecheng?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&failOverReadOnly=false&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8&zeroDateTimeBehavior=convertToNull");
-        // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");
         dsc.setUsername("root");
         dsc.setPassword("123456");
@@ -70,7 +69,7 @@ public class MybatisGeneratorNew {
 
         Map<String, String> pathInfo = new HashMap();
         pathInfo.put("entity_path", projectPath + "/src/main/java/com/xiecheng/crawler/entity/po");
-        pathInfo.put("mapper_path", projectPath + "/src/main/java/com/xiecheng/crawler/dao");
+        pathInfo.put("mapper_path", projectPath + "/src/main/java/com/xiecheng/crawler/mapper");
         pc.setPathInfo(pathInfo);
         mpg.setPackageInfo(pc);
 

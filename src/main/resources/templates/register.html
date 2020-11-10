@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>数据中心</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css" th:href="@{/layui/css/layui.css}" media="all"/>
+    <link rel="stylesheet" href="../static/css/login.css" th:href="@{/css/login.css}" media="all"/>
+    <link rel="stylesheet" href="../static/css/crawler.css" th:href="@{/css/crawler.css}" media="all"/>
+    <link rel="stylesheet" href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}">
+    <!--//收藏用logo图标-->
+    <link rel="shortcut icon" th:href="@{/favicon.ico}"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}"/>
+    <script type="text/javascript">
+        if (window != top) {
+            top.location.href = location.href;
+        }
+
+    </script>
+</head>
+<body>
+
+<div class="video_mask">
+    <img src="../static/images/login_bg.jpg" th:src="@{/images/login_bg.jpg}">
+</div>
+<div class="video_mask"></div>
+<div class="register">
+    <h1>用户注册</h1>
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <input class="layui-input" name="loginName" placeholder="用户名" lay-verify="required|username"
+                   type="text" autocomplete="off">
+        </div>
+        <div class="layui-form-item">
+            <input class="layui-input" name="password" placeholder="密码" lay-verify="required"
+                   type="password" autocomplete="off">
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-normal">
+                <input type="radio" name="sex" value="1" title="男" checked="">
+                <input type="radio" name="sex" value="2" title="女">
+                <input type="radio" name="sex" value="0" title="保密">
+            </div>
+        </div>
+
+        <span class="layui-btn chat_register_btn" onclick="showLogin()">返回登录</span>
+        <button class="layui-btn chat_login_btn right" lay-submit="" lay-filter="register">立即注册</button>
+    </form>
+</div>
+<script type="text/javascript" src="../static/layui/layui.js" th:src="@{/layui/layui.js}"></script>
+
+<script type="text/javascript" th:inline="javascript" src="../static/js/register.js" th:src="@{/js/register.js}"></script>
+
+</body>
+</html>

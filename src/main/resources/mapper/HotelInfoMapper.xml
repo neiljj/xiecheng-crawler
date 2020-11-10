@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xiecheng.crawler.dao.HotelInfoMapper">
+<mapper namespace="com.xiecheng.crawler.mapper.HotelInfoMapper">
     <resultMap id="BaseResultMap" type="com.xiecheng.crawler.entity.po.HotelInfoDO" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="city" property="city" jdbcType="VARCHAR" />
