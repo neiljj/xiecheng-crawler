@@ -61,46 +61,37 @@ public class TaskQueue {
      */
     @PostConstruct
     public void initQueue(){
-//        List<String> cityCodes = CityEnum.toList();
-//        List<String> typeCodes = TypeEnum.toList();
-//        Set<String> brandCodes = getBrandMap().keySet();
-//
-//        cityCodes.forEach(city -> {
-//            //1.城市+类型
-//            typeCodes.forEach(type -> {
-//                Task task = new Task();
-//                task.setParamTag(1);
-//                task.setDepthTag(0);
-//                task.setParam(PARAM_STRING + city + "&type=" + type);
-//                try {
-//                    taskQueue.put(task);
-//                }catch (InterruptedException e){
-//                    log.error("添加队列发生错误{}",e.getMessage());
-//                }
-//            });
-//            //1.城市+品牌
-//            brandCodes.forEach(brand -> {
-//                Task task = new Task();
-//                task.setParamTag(2);
-//                task.setDepthTag(0);
-//                task.setParam(PARAM_STRING + city + "&brand=" + brand);
-//                try {
-//                    taskQueue.put(task);
-//                }catch (InterruptedException e){
-//                    log.error("添加队列发生错误{}",e.getMessage());
-//                }
-//            });
-//
-//        });
-        Task task = new Task();
-        task.setParam("StartTime=2020-12-12&DepTime=2020-12-13&cityId=17&type=1 ");
-        task.setDepthTag(0);
-        task.setParamTag(2);
-        try {
-            taskQueue.put(task);
-        }catch(InterruptedException e){
-            log.error("添加队列发生错误{}",e.getMessage());
-        }
+        List<String> cityCodes = CityEnum.toList();
+        List<String> typeCodes = TypeEnum.toList();
+        Set<String> brandCodes = getBrandMap().keySet();
+
+        cityCodes.forEach(city -> {
+            //1.城市+类型
+            typeCodes.forEach(type -> {
+                Task task = new Task();
+                task.setParamTag(1);
+                task.setDepthTag(0);
+                task.setParam(PARAM_STRING + city + "&type=" + type);
+                try {
+                    taskQueue.put(task);
+                }catch (InterruptedException e){
+                    log.error("添加队列发生错误{}",e.getMessage());
+                }
+            });
+            //1.城市+品牌
+            brandCodes.forEach(brand -> {
+                Task task = new Task();
+                task.setParamTag(2);
+                task.setDepthTag(0);
+                task.setParam(PARAM_STRING + city + "&brand=" + brand);
+                try {
+                    taskQueue.put(task);
+                }catch (InterruptedException e){
+                    log.error("添加队列发生错误{}",e.getMessage());
+                }
+            });
+
+        });
     }
 
 
