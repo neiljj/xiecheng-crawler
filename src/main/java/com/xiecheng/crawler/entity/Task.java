@@ -12,7 +12,7 @@ public class Task {
     private String param;
 
     /**
-     * 参数类型，1表示城市+类型，2表示城市+品牌
+     * 参数类型，0表示城市，1表示城市+类型，2表示城市+品牌,3表示城市+类型+品牌
      */
     private Integer paramTag;
 

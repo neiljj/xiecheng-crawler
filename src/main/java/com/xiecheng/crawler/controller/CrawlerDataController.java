@@ -6,21 +6,28 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiecheng.crawler.constant.MessageConstant;
 import com.xiecheng.crawler.entity.ResponseResult;
+import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
 import com.xiecheng.crawler.entity.po.CustomerDO;
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
+import com.xiecheng.crawler.entity.vo.req.AddCrawlerTaskReq;
+import com.xiecheng.crawler.entity.vo.req.QryCrawlerTaskReq;
 import com.xiecheng.crawler.entity.vo.req.QryDetailInfoReq;
 import com.xiecheng.crawler.entity.vo.req.QryHotelInfoReq;
-import com.xiecheng.crawler.service.core.CustomerService;
-import com.xiecheng.crawler.service.core.DetailInfoService;
-import com.xiecheng.crawler.service.core.HotelnfoService;
+import com.xiecheng.crawler.mapstruct.Mapping;
+import com.xiecheng.crawler.service.core.service.impl.CrawlerTaskService;
+import com.xiecheng.crawler.service.core.service.impl.CustomerService;
+import com.xiecheng.crawler.service.core.service.impl.DetailInfoService;
+import com.xiecheng.crawler.service.core.service.impl.HotelInfoService;
 import com.xiecheng.crawler.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -35,15 +42,22 @@ import java.util.Date;
 @RequestMapping("/manage")
 @Slf4j
 public class CrawlerDataController {
+
     @Resource
-    private HotelnfoService hotelnfoService;
+    private HotelInfoService hotelnfoService;
+
     @Resource
     private DetailInfoService detailInfoService;
+
     @Resource
     private CustomerService customerService;
-    @PostMapping("/show_hotel_info")
+
+    @Resource
+    private CrawlerTaskService crawlerTaskService;
+
+    @RequestMapping("/show_hotel_info")
     @ResponseBody
-    public ResponseResult showHotelInfo(QryHotelInfoReq req){
+    public ResponseResult showHotelInfo(@RequestBody QryHotelInfoReq req){
         log.info("查询酒店信息入参{}",req);
         Date start = null;
         Date end = null;
@@ -58,14 +72,14 @@ public class CrawlerDataController {
                 .between(StringUtils.isNotEmpty(req.getPriceBegin()) && StringUtils.isNotEmpty(req.getPriceEnd()),"price",req.getPriceBegin(),req.getPriceEnd())
                 .between(start != null && end != null,"create_time",start,end)
                 ;
-        IPage<HotelInfoDO> page = hotelnfoService.page(new Page<>(req.getPage(),req.getPer()),wrapper);
+        IPage<HotelInfoDO> page = hotelnfoService.page(new Page<>(req.getPage(),req.getLimit()),wrapper);
         log.info("分页查询酒店信息成功{}", JSONUtil.toJsonStr(page));
-        return ResponseResult.success(page);
+        return ResponseResult.success(page.getTotal(),page.getRecords());
     }
 
-    @PostMapping("/show_hotel_detail")
+    @RequestMapping("/show_hotel_detail")
     @ResponseBody
-    public ResponseResult showHotelDetail(QryDetailInfoReq req){
+    public ResponseResult showHotelDetail(@RequestBody QryDetailInfoReq req){
         log.info("查询酒店详情入参{}",req);
         Date start = null;
         Date end = null;
@@ -78,9 +92,9 @@ public class CrawlerDataController {
                 .eq(StringUtils.isNotEmpty(req.getHotelName()),"name",req.getHotelName())
                 .between(start != null && end != null,"create_time",start,end)
                 ;
-        IPage<DetailInfoDO> page = detailInfoService.page(new Page<>(req.getPage(),req.getPer()),wrapper);
+        IPage<DetailInfoDO> page = detailInfoService.page(new Page<>(req.getPage(),req.getLimit()),wrapper);
         log.info("分页查询酒店详情成功{}", JSONUtil.toJsonStr(page));
-        return ResponseResult.success(page);
+        return ResponseResult.success(page.getTotal(),page.getRecords());
     }
 
     @RequestMapping("/center")
@@ -92,4 +106,56 @@ public class CrawlerDataController {
         model.addAttribute("customer",customerDO);
         return "manage_center";
     }
+
+    @RequestMapping("/show_crawler_task")
+    @ResponseBody
+    public ResponseResult showCrawlerTask(QryCrawlerTaskReq req){
+        log.info("分页查询采集任务入参{}",req);
+        IPage<CrawlerTaskDO> page = crawlerTaskService.page(new Page<>(req.getPage(),req.getLimit()));
+        log.info("分页查询采集任务成功{}",JSONUtil.toJsonStr(page));
+        return ResponseResult.success(page.getTotal(),page.getRecords());
+    }
+
+    @RequestMapping(value = "/add_crawler_task")
+    @ResponseBody
+    public ResponseResult addCrawlerTask(@RequestBody AddCrawlerTaskReq req){
+        log.info("新增采集任务入参{}",req);
+        Wrapper<CrawlerTaskDO> wrapper = null;
+        //首先需要查询重复任务
+        if(StringUtils.isEmpty(req.getBrand()) && StringUtils.isEmpty(req.getType())){
+            wrapper = new QueryWrapper<CrawlerTaskDO>()
+                    .eq("city",req.getCity())
+            ;
+        }
+        if(!StringUtils.isEmpty(req.getBrand()) && StringUtils.isEmpty(req.getType())){
+            wrapper = new QueryWrapper<CrawlerTaskDO>()
+                    .eq("city",req.getCity())
+                    .eq("brand",req.getBrand())
+            ;
+        }
+        if(StringUtils.isEmpty(req.getBrand()) && !StringUtils.isEmpty(req.getType())){
+            wrapper = new QueryWrapper<CrawlerTaskDO>()
+                    .eq("city",req.getCity())
+                    .eq("type",req.getType())
+            ;
+        }
+        if(!StringUtils.isEmpty(req.getBrand()) && !StringUtils.isEmpty(req.getType())){
+            wrapper = new QueryWrapper<CrawlerTaskDO>()
+                    .eq("city",req.getCity())
+                    .eq("type",req.getType())
+                    .eq("brand",req.getBrand())
+            ;
+        }
+        if(!CollectionUtils.isEmpty(crawlerTaskService.list(wrapper))){
+            return ResponseResult.fail(MessageConstant.TASK_EXIT);
+        }
+        req.setStatus(0);
+        CrawlerTaskDO crawlerTaskDO = Mapping.instance.toCrawlerTaskDO(req);
+        crawlerTaskDO.setCreateTime(new Date());
+        crawlerTaskService.save(crawlerTaskDO);
+        log.info("采集任务{}新建成功",req);
+        return ResponseResult.success();
+    }
+
+
 }

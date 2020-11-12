@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.service.core;
+package com.xiecheng.crawler.service.core.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiecheng.crawler.mapper.HotelInfoMapper;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class HotelnfoService extends ServiceImpl<HotelInfoMapper, HotelInfoDO> {
+public class HotelInfoService extends ServiceImpl<HotelInfoMapper, HotelInfoDO> {
     @Resource
     private HotelInfoMapper hotelInfoMapper;
 

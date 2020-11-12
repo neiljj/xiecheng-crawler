@@ -6,14 +6,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.xiecheng.crawler.service.core.HotelnfoService;
+import com.xiecheng.crawler.service.core.service.impl.HotelInfoService;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.enums.CityEnum;
 import com.xiecheng.crawler.enums.StarEnum;
 import com.xiecheng.crawler.enums.TypeEnum;
 import com.xiecheng.crawler.service.CrawlerService;
 import com.xiecheng.crawler.entity.Task;
-import com.xiecheng.crawler.service.TaskQueue;
+import com.xiecheng.crawler.service.core.TaskQueue;
 import lombok.extern.slf4j.Slf4j;
 import net.jcip.annotations.ThreadSafe;
 import org.assertj.core.util.Lists;
@@ -46,7 +46,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
     private String uri;
 
     @Resource
-    private HotelnfoService hotelnfoService;
+    private HotelInfoService hotelnfoService;
 
     private String urlDomain = "https://hotels.ctrip.com";
 
@@ -152,12 +152,22 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
                 String url = urlDomain + entity.getString("url");
                 hotelInfoDO.setUrl(url);
                 hotelInfoDO.setPrice(priceMap.get(entity.getString("name")));
-                //设置type 或brand属性,采用表驱动消除if-else,key存paramTag，depthTag
+//                //设置type 或brand属性,采用表驱动消除if-else,key存paramTag，depthTag
                 Map<List<Integer>,Consumer> actionMap = new HashMap<>(4);
+                actionMap.put(Lists.newArrayList(0,0),null);
+                actionMap.put(Lists.newArrayList(0,1),null);
                 actionMap.put(Lists.newArrayList(1,0),t -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)",param)).map(TypeEnum::getDesc).orElse(null)));
                 actionMap.put(Lists.newArrayList(1,1),t -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)",param)).map(TypeEnum::getDesc).orElse(null)));
                 actionMap.put(Lists.newArrayList(2,0),t -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)",param))));
                 actionMap.put(Lists.newArrayList(2,1),t -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)(?=&)",param))));
+                actionMap.put(Lists.newArrayList(3,0),t -> {
+                    hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)",param)));
+                    hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)",param)).map(TypeEnum::getDesc).orElse(null));
+                });
+                actionMap.put(Lists.newArrayList(3,1),t -> {
+                    hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*?)(?=&)",param)));
+                    hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)",param)).map(TypeEnum::getDesc).orElse(null));
+                });
                 actionMap.get(Lists.newArrayList(paramTag,depthTag)).accept(1);
                 //将url放入第二层采集队列，采用布隆表去重,需要将url后缀去掉
                 String urlFilter = ReUtil.getGroup0("(.*)(?=\\?)",url);

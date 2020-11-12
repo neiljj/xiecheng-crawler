@@ -15,7 +15,7 @@ public class BaseReq implements Serializable {
     private String createTimeStart;
     private String createTimeEnd;
     private Integer page = 1;
-    private Integer per = 10;
+    private Integer limit = 10;
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);

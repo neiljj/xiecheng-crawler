@@ -28,7 +28,7 @@ public class RunningServiceImpl implements RunningService {
         ExecutorService service = Executors.newFixedThreadPool(2);
         service.execute(() -> firstDepthCrawlerBiz.process());
         try {
-            Thread.sleep(10 * 1000);
+            Thread.sleep(60 * 1000);
         }catch (InterruptedException e){
         }
         //一分钟后再启动第二次采集任务

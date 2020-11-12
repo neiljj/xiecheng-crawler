@@ -9,8 +9,8 @@ import com.xiecheng.crawler.entity.Task;
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.service.CrawlerService;
-import com.xiecheng.crawler.service.core.DetailInfoService;
-import com.xiecheng.crawler.service.core.HotelnfoService;
+import com.xiecheng.crawler.service.core.service.impl.DetailInfoService;
+import com.xiecheng.crawler.service.core.service.impl.HotelInfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.jcip.annotations.ThreadSafe;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
     private static BitMapBloomFilter bitMapBloomFilter = new BitMapBloomFilter(100);
 
     @Resource
-    private HotelnfoService hotelnfoService;
+    private HotelInfoService hotelnfoService;
 
     @Resource
     private CrawlerService secondDepthCrawlerServiceImpl;

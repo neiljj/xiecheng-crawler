@@ -1,5 +1,6 @@
 package com.xiecheng.crawler.controller;
 
+import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -8,15 +9,13 @@ import com.xiecheng.crawler.entity.ResponseResult;
 import com.xiecheng.crawler.entity.po.CustomerDO;
 import com.xiecheng.crawler.entity.vo.CustomerVo;
 import com.xiecheng.crawler.mapstruct.Mapping;
-import com.xiecheng.crawler.service.core.CustomerService;
+import com.xiecheng.crawler.service.core.service.impl.CustomerService;
 import com.xiecheng.crawler.utils.JwtUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -27,11 +26,15 @@ import java.util.Map;
  * @since 2020-11-10 10:27:01
  */
 @Controller
-@Slf4j
 public class LoginController {
 
     @Resource
     private CustomerService customerService;
+
+    @RequestMapping("/")
+    public String index(){
+        return "login";
+    }
     /**
      * 退出登录
      * @param session session
@@ -63,16 +66,14 @@ public class LoginController {
             return ResponseResult.fail(MessageConstant.USER_ALREADY_EXIT);
         }
         CustomerDO customerDO =  Mapping.instance.toCustomerDoO(customerVo);
+        customerDO.setPassword(SecureUtil.md5(customerDO.getPassword()));
         if(customerService.save(customerDO)){
             return ResponseResult.success(MessageConstant.REGISTER_SUCESS);
         }
         return ResponseResult.fail(MessageConstant.REGISTER_FAIL);
     }
 
-    @RequestMapping("/")
-    public String index(){
-        return "login";
-    }
+
 
     @RequestMapping("login")
     @ResponseBody
@@ -87,7 +88,7 @@ public class LoginController {
         if(ObjectUtils.isEmpty(customerDO)){
             return ResponseResult.fail(MessageConstant.USER_UNEXIT);
         }
-        if(!customerDO.getPassword().equals(password)){
+        if(!customerDO.getPassword().equals(SecureUtil.md5(password))){
             return ResponseResult.fail(MessageConstant.WRONG_PASSWORD);
         }
         Map<String,String> token = new HashMap();
@@ -96,4 +97,5 @@ public class LoginController {
         session.setAttribute("token",ret);
         return ResponseResult.success(MessageConstant.LOGIN_SUCESS,token);
     }
+
 }

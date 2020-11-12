@@ -20,9 +20,18 @@ public class ResponseResult {
     private Integer code;
     /*响应消息*/
     private String msg;
+
+    private Long count;
     /*响应数据*/
     private Object data;
 
+
+
+    public ResponseResult(Integer code,String msg,Object data){
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
     /**
      *功能描述: 成功，未带返回数据
      * @Author 小莫
@@ -67,6 +76,9 @@ public class ResponseResult {
         return new ResponseResult(0,"success",data);
     }
 
+    public static ResponseResult success(Long count,Object data){
+        return new ResponseResult(0,"success",count,data);
+    }
     /**
      *功能描述: 失败不带消息
      * @Author 小莫

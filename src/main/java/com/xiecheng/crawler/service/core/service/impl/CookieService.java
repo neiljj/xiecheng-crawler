@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.service.core;
+package com.xiecheng.crawler.service.core.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiecheng.crawler.entity.po.CookieDO;

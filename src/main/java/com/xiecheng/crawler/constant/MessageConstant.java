@@ -13,4 +13,10 @@ public class MessageConstant {
     public static String LOGIN_SUCESS = "登录成功";
     public static String WRONG_PASSWORD = "密码错误";
     public static String USER_UNEXIT = "用户不存在";
+
+    public static String CITY_NOT_EMPTY = "城市不能为空";
+
+    public static String COOKIE_EXPIRES = "cookie已过期，请更换";
+
+    public static String TASK_EXIT = "任务已存在";
 }

@@ -3,9 +3,7 @@ package com.xiecheng.crawler.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author nijichang
@@ -50,5 +48,13 @@ public enum TypeEnum {
             codes.add(typeEnum.code);
         }
         return codes;
+    }
+
+    public static Map<String,String> toMap(){
+        Map<String, String> map = new LinkedHashMap<>();
+        for(TypeEnum typeEnum : values()){
+            map.put(typeEnum.getDesc(),typeEnum.getCode());
+        }
+        return map;
     }
 }

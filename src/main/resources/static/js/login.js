@@ -9,9 +9,9 @@ layui.use(['form', 'layer'], function () {
     form = layui.form;
     //如果是自动登录
     if (autoLogin === "true") {
-        var username = localStorage.getItem("username") || "";
+        var name = localStorage.getItem("name") || "";
         var password = localStorage.getItem("password") || "";
-        $("#username").val(username);
+        $("#name").val(name);
         $("#password").val(password);
         $("#rememberMe").attr("checked", "checked");
     }
@@ -25,11 +25,11 @@ layui.use(['form', 'layer'], function () {
         var autoLogin = localStorage.getItem("autoLogin") || "false";
         if (autoLogin === "false") {
             localStorage.setItem("autoLogin", "true");
-            localStorage.setItem("username", $("#username").val());
+            localStorage.setItem("name", $("#name").val());
             localStorage.setItem("password", $("#password").val());
         } else {
             localStorage.setItem("autoLogin", "false");
-            localStorage.setItem("username", "");
+            localStorage.setItem("name", "");
             localStorage.setItem("password", "");
         }
     });
@@ -43,10 +43,10 @@ layui.use(['form', 'layer'], function () {
     form.on("submit(login)", function (data) {
         var autoLogin = localStorage.getItem("autoLogin") || "false";
         if (autoLogin === "true") {
-            localStorage.setItem("username", $("#username").val());
+            localStorage.setItem("name", $("#name").val());
             localStorage.setItem("password", $("#password").val());
         } else {
-            localStorage.setItem("username", "");
+            localStorage.setItem("name", "");
             localStorage.setItem("password", "");
         }
 
@@ -54,7 +54,7 @@ layui.use(['form', 'layer'], function () {
             type: "post",
             url: "/crawler/login",
             data: {
-                username: data.field.username,
+                username: data.field.name,
                 password: data.field.password,
                 code: data.field.code
             },
@@ -85,7 +85,7 @@ layui.use(['form', 'layer'], function () {
 /*点击看不清，刷新验证码*/
 function reloadCodeImage() {
     var timestamp = new Date().valueOf();
-    var url = /*[[@{/code/getCodeImage}]]*/"/code/getCodeImage";
+    var url = /*[[@{/code/getCodeImage}]]*/"/crawler/code/getCodeImage";
     $('#randCode').attr('src', url + '?time=' + timestamp);
     $('#code').val('');
 }

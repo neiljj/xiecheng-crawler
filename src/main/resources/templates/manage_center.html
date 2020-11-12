@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>携程数据管理后台</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico}"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" href="../static/layui/css/layui.css">
+
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!--头部导航栏部分-->
+    <div class="layui-header layui-bg-cyan">
+        <div class="layui-logo">数据后台管理</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <img src="https://www.xmlvhy.com/images/user.png" class="layui-nav-img">
+                    <span th:text="${customer.name}">小莫先生</span>
+                </a>
+                <dl class="layui-nav-child" style="text-align: center">
+                    <dd><a href="javascript:void(0);" th:href="@{/logout}">退出系统</a></dd>
+                    <dd><a href="javascript:void(0);" onclick="customerInfo()">基本资料</a></dd>
+                </dl>
+            </li>
+            <!--<li class="layui-nav-item"><a href="">退出</a></li>-->
+        </ul>
+    </div>
+
+    <!--侧边栏-->
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">数据管理中心</a>
+                    <dl class="layui-nav-child">
+                        <!--<dd><a href="javascript:;">内容管理</a></dd>-->
+                        <dd><a href="javascript:;" class="layui-this">采集任务管理</a></dd>
+                        <dd><a href="javascript:;" class="">酒店信息</a></dd>
+                        <dd><a href="javascript:;" class="">酒店详情信息</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div class="" style="padding: 15px;">
+            <div class="layui-row">
+                <!-- layui表单 -->
+                <form class="layui-form">
+                    <!-- layui-inline 在一个行中显示多个div -->
+
+                    <div class="layui-inline" style="width: 150px">
+                        <select name="city" id="city" lay-filter="city" class="data-select" >
+
+                        </select>
+                    </div>
+
+                    <div class="layui-inline" style="width: 150px">
+                        <select name="type" id="type" lay-filter="type" class="data-select" >
+                        </select>
+                    </div>
+                    <div class="layui-inline" style="width: 150px">
+                        <select name="brand" id="brand" lay-filter="brand" class="data-select">
+                        </select>
+                    </div>
+
+                    <div class="layui-inline">
+                        <a href="javascript:void(0)" id="btnAddTask" class="layui-btn">添加任务</a>
+                    </div>
+
+                </form>
+            </div>
+
+            <!--
+        layui-table 代表是一个表格
+        url : ajax获取数据的地址
+        page : 自动生成分页栏
+        height:auto 表格高度随着内容自适应
+        lay-filter相当于layui自己使用的ID
+    -->
+            <table class="layui-table" id="crawler-task">
+            </table>
+        </div>
+    </div>
+    <!-- 底部固定区域 -->
+    <div class="layui-footer" align="center">
+        <span class="layui-text"><b>郑重声明:此站涉及的相关数据仅用于学习交流，不得用于商业用途。</b></span>
+        <span class="layui-text">Copyright © 2020 BY 杰尼</span>
+    </div>
+</div>
+<!-- 利用JS初始化上面的table组件 -->
+<script type="text/javascript" src="../static/layui/layui.js" th:src="@{/layui/layui.js}"></script>
+<script type="text/javascript" th:inline="javascript" src="../static/js/main.js" th:src="@{/js/main.js}"></script>
+<script src="../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script type="text/html" id="statusEnum">
+    {{# if(d.status === 0){ }}
+    待采集
+    {{# }else if(d.status === 1){ }}
+    正在采集
+    {{# }else if(d.status ===2){ }}
+    已完成
+    {{# } }}
+</script>
+<script type="text/html" id="dateFormat">
+    <div>{{layui.util.toDateString(d.createTime, 'yyyy-MM-dd HH:mm:ss')}}</div>
+    </script>
+</body>
+</html>

@@ -10,5 +10,5 @@ import lombok.Data;
 public class CustomerVo {
     private String password;
     private String name;
-    private String sex;
+    private String gender;
 }
