@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.xiecheng.crawler.function.Consumer;
 import com.xiecheng.crawler.service.core.service.impl.HotelInfoService;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.enums.CityEnum;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
 
 
 /**
@@ -153,22 +153,22 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
                 hotelInfoDO.setUrl(url);
                 hotelInfoDO.setPrice(priceMap.get(entity.getString("name")));
 //                //设置type 或brand属性,采用表驱动消除if-else,key存paramTag，depthTag
-                Map<List<Integer>,Consumer> actionMap = new HashMap<>(4);
+                Map<List<Integer>, Consumer> actionMap = new HashMap<>(6);
                 actionMap.put(Lists.newArrayList(0,0),null);
                 actionMap.put(Lists.newArrayList(0,1),null);
-                actionMap.put(Lists.newArrayList(1,0),t -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)",param)).map(TypeEnum::getDesc).orElse(null)));
-                actionMap.put(Lists.newArrayList(1,1),t -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)",param)).map(TypeEnum::getDesc).orElse(null)));
-                actionMap.put(Lists.newArrayList(2,0),t -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)",param))));
-                actionMap.put(Lists.newArrayList(2,1),t -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)(?=&)",param))));
-                actionMap.put(Lists.newArrayList(3,0),t -> {
+                actionMap.put(Lists.newArrayList(1,0),() -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)",param)).map(TypeEnum::getDesc).orElse(null)));
+                actionMap.put(Lists.newArrayList(1,1),() -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)",param)).map(TypeEnum::getDesc).orElse(null)));
+                actionMap.put(Lists.newArrayList(2,0),() -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)",param))));
+                actionMap.put(Lists.newArrayList(2,1),() -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)(?=&)",param))));
+                actionMap.put(Lists.newArrayList(3,0),() -> {
                     hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)",param)));
                     hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)",param)).map(TypeEnum::getDesc).orElse(null));
                 });
-                actionMap.put(Lists.newArrayList(3,1),t -> {
+                actionMap.put(Lists.newArrayList(3,1),() -> {
                     hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*?)(?=&)",param)));
                     hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)",param)).map(TypeEnum::getDesc).orElse(null));
                 });
-                actionMap.get(Lists.newArrayList(paramTag,depthTag)).accept(1);
+                actionMap.get(Lists.newArrayList(paramTag,depthTag)).apply();
                 //将url放入第二层采集队列，采用布隆表去重,需要将url后缀去掉
                 String urlFilter = ReUtil.getGroup0("(.*)(?=\\?)",url);
                 if(!bitMapBloomFilter.contains(urlFilter)){
@@ -187,7 +187,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
         headers.put("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36");
         headers.put("Accept","*/*");
         headers.put("Accept-Encoding","gzip, deflate, br");
-        headers.put("Cookie",cookie);
+        headers.put("Cookie",getCookie());
         return headers;
     }
 

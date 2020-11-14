@@ -2,7 +2,6 @@ package com.xiecheng.crawler.controller;
 
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.CircleCaptcha;
-import cn.hutool.captcha.LineCaptcha;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,11 +41,5 @@ public class VerifyCodeController {
         } catch (IOException e) {
             log.info("验证码生成失败，失败信息：{}",e.getMessage());
         }
-    }
-
-    public static void main (String[] args){
-        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(200,100);
-        lineCaptcha.write("/Users/qudian/Downloads/line.jpeg");
-        System.out.println(lineCaptcha.getCode());
     }
 }

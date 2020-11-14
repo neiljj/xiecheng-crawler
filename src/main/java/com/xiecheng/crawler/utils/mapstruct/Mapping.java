@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.mapstruct;
+package com.xiecheng.crawler.utils.mapstruct;
 
 import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
 import com.xiecheng.crawler.entity.po.CustomerDO;

@@ -5,7 +5,7 @@
 1.启动XiechengCrawlerApplication，直接访问 http:/localhost:8080/crawler/api/run
 2.跑单测XiechengCrawlerApplicationTests.test()方法
 
-- 技术组合：SpringBoot,SpringMvc,mybatis-plus,mapstruct,hutool,Thymeleaf,freemarker,jsoup
+- 技术组合：SpringBoot,SpringMvc,mybatis-plus,mapstruct,hutool,Thymeleaf,caffeine
 - 前端框架：Layui
 
 后续逐步做成任务可配置化，包含前端页面，添加采集任务，采集结果展示等

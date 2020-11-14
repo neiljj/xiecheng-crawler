@@ -15,6 +15,7 @@ import com.xiecheng.crawler.entity.po.CityDO;
 import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.enums.TypeEnum;
+import com.xiecheng.crawler.function.Consumer;
 import com.xiecheng.crawler.service.core.service.impl.BrandService;
 import com.xiecheng.crawler.service.core.service.impl.CityService;
 import com.xiecheng.crawler.service.core.service.impl.CrawlerTaskService;
@@ -29,7 +30,6 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
 
 /**
  * @author nijichang
@@ -94,11 +94,11 @@ public class TaskQueue {
 
             //参数类型改为匹配
             Map<List<Boolean>, Consumer> actionMap = new HashMap<>(4);
-            actionMap.put(Lists.newArrayList(true,true), action -> task.setParamTag(3));
-            actionMap.put(Lists.newArrayList(true,false),action -> task.setParamTag(2));
-            actionMap.put(Lists.newArrayList(false,true),action -> task.setParamTag(1));
-            actionMap.put(Lists.newArrayList(false,false),action -> task.setParamTag(0));
-            actionMap.get(Lists.newArrayList(StringUtils.isNotEmpty(t.getBrand()),StringUtils.isNotEmpty(t.getType()))).accept(1);
+            actionMap.put(Lists.newArrayList(true,true), () -> task.setParamTag(3));
+            actionMap.put(Lists.newArrayList(true,false),() -> task.setParamTag(2));
+            actionMap.put(Lists.newArrayList(false,true),() -> task.setParamTag(1));
+            actionMap.put(Lists.newArrayList(false,false),() -> task.setParamTag(0));
+            actionMap.get(Lists.newArrayList(StringUtils.isNotEmpty(t.getBrand()),StringUtils.isNotEmpty(t.getType()))).apply();
             try {
                 taskQueue.put(task);
             } catch (InterruptedException e) {

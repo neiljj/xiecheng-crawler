@@ -1,13 +1,14 @@
 package com.xiecheng.crawler.controller;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ReUtil;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.xiecheng.crawler.constant.MessageConstant;
 import com.xiecheng.crawler.entity.ResponseResult;
 import com.xiecheng.crawler.enums.TypeEnum;
 import com.xiecheng.crawler.service.core.TaskQueue;
 import com.xiecheng.crawler.service.core.service.impl.CookieService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -43,9 +44,13 @@ public class InitController {
     public ResponseResult cookieCheck(){
         String cookie = cookieService.getById(1).getCookie();
         String cookieDate = ReUtil.getGroup0("(?<=Expires=)(\\d*)",cookie);
-        if((System.currentTimeMillis() - Long.valueOf(cookieDate)) / (1000*3600*24) >= 6){
-            return ResponseResult.success(MessageConstant.COOKIE_EXPIRES);
+        if(StringUtils.isNotEmpty(cookieDate)) {
+            if ((System.currentTimeMillis() - Long.valueOf(cookieDate)) / (1000 * 3600 * 24) >= 6) {
+                return ResponseResult.fail(MessageConstant.COOKIE_EXPIRES);
+            }
         }
         return ResponseResult.success();
     }
+
+
 }

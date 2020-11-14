@@ -147,7 +147,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         headers.put("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36");
         headers.put("Accept","*/*");
         headers.put("Accept-Encoding","gzip, deflate, br");
-        headers.put("Cookie",cookie);
+        headers.put("Cookie",getCookie());
         headers.put("Referer","https://hotels.ctrip.com/hotel/" + hotelId + ".html");
         return headers;
     }

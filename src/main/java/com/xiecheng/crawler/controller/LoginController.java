@@ -8,7 +8,7 @@ import com.xiecheng.crawler.constant.MessageConstant;
 import com.xiecheng.crawler.entity.ResponseResult;
 import com.xiecheng.crawler.entity.po.CustomerDO;
 import com.xiecheng.crawler.entity.vo.CustomerVo;
-import com.xiecheng.crawler.mapstruct.Mapping;
+import com.xiecheng.crawler.utils.mapstruct.Mapping;
 import com.xiecheng.crawler.service.core.service.impl.CustomerService;
 import com.xiecheng.crawler.utils.JwtUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -79,10 +79,10 @@ public class LoginController {
     @ResponseBody
     public ResponseResult login(String username, String password,
                                 String code, HttpSession session){
-        String randCode = (String) session.getAttribute("code");
-        if(!randCode.equalsIgnoreCase(code)){
-            return ResponseResult.fail(MessageConstant.CODE_ERROR);
-        }
+//        String randCode = (String) session.getAttribute("code");
+//        if(!randCode.equalsIgnoreCase(code)){
+//            return ResponseResult.fail(MessageConstant.CODE_ERROR);
+//        }
         CustomerDO customerDO = customerService.getOne(new QueryWrapper<CustomerDO>()
                 .eq(StringUtils.isNotEmpty(username),"name",username));
         if(ObjectUtils.isEmpty(customerDO)){

@@ -1,5 +1,6 @@
 package com.xiecheng.crawler.service.biz;
 
+import com.xiecheng.crawler.service.core.service.impl.CacheService;
 import com.xiecheng.crawler.service.core.service.impl.CookieService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,15 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 public abstract class AbstractCrawlerBiz {
-
-    @Value("${crawler.cookie}")
-    protected String cookie;
-
     @Value("${thread.num}")
     protected Integer threadNum;
 
     @Resource
-    private CookieService cookieService;
+    private CacheService cacheService;
 
     protected AtomicInteger taskNum = new AtomicInteger(0);
 
@@ -33,12 +30,11 @@ public abstract class AbstractCrawlerBiz {
             log.error(e.getMessage());
         }
     }
-
     /**
-     * 从数据库中获取cookie
+     * cookie由本地缓存中读取，缓存更新时间为1小时
      */
-    @Bean
-    protected void getCookie(){
+    protected String getCookie(){
+        return cacheService.getCookie().getCookie();
     }
     protected abstract void process();
 

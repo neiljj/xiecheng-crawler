@@ -1,5 +1,6 @@
 package com.xiecheng.crawler.controller;
 
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -8,20 +9,14 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xiecheng.crawler.constant.MessageConstant;
 import com.xiecheng.crawler.entity.ResponseResult;
-import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
-import com.xiecheng.crawler.entity.po.CustomerDO;
-import com.xiecheng.crawler.entity.po.DetailInfoDO;
-import com.xiecheng.crawler.entity.po.HotelInfoDO;
+import com.xiecheng.crawler.entity.po.*;
 import com.xiecheng.crawler.entity.vo.req.AddCrawlerTaskReq;
 import com.xiecheng.crawler.entity.vo.req.QryCrawlerTaskReq;
 import com.xiecheng.crawler.entity.vo.req.QryDetailInfoReq;
 import com.xiecheng.crawler.entity.vo.req.QryHotelInfoReq;
-import com.xiecheng.crawler.mapstruct.Mapping;
-import com.xiecheng.crawler.service.core.service.impl.CrawlerTaskService;
-import com.xiecheng.crawler.service.core.service.impl.CustomerService;
-import com.xiecheng.crawler.service.core.service.impl.DetailInfoService;
-import com.xiecheng.crawler.service.core.service.impl.HotelInfoService;
+import com.xiecheng.crawler.service.core.service.impl.*;
 import com.xiecheng.crawler.utils.JwtUtils;
+import com.xiecheng.crawler.utils.mapstruct.Mapping;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -54,6 +49,9 @@ public class CrawlerDataController {
 
     @Resource
     private CrawlerTaskService crawlerTaskService;
+
+    @Resource
+    private CookieService cookieService;
 
     @RequestMapping("/show_hotel_info")
     @ResponseBody
@@ -157,5 +155,20 @@ public class CrawlerDataController {
         return ResponseResult.success();
     }
 
+    @RequestMapping(value = "/cookieUpdate")
+    @ResponseBody
+    public ResponseResult updateCookie(@RequestBody String cookie){
+        //cookie格式校验 2020-11-14 发现携程对cookie进行了改造。。。。
+        if(!cookie.contains("Expires")){
+            return ResponseResult.fail();
+        }
+        String getCookie = ReUtil.getGroup0("(?<=:\")(.*)(?=\\\"})",cookie);
+        CookieDO cookieDO = new CookieDO();
+        cookieDO.setId(1);
+        cookieDO.setCookie(getCookie);
+        cookieService.updateById(cookieDO);
+        log.info("cookie更新成功");
+        return ResponseResult.success();
+    }
 
 }
