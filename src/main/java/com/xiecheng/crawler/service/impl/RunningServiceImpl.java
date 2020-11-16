@@ -33,6 +33,7 @@ public class RunningServiceImpl implements RunningService {
         }
         //一分钟后再启动第二次采集任务
         service.execute(() -> secondDepthCrawlerBiz.process());
+
         service.shutdown();
         while(true){
             if(service.isTerminated()){
@@ -40,6 +41,5 @@ public class RunningServiceImpl implements RunningService {
                 break;
             }
         }
-
     }
 }

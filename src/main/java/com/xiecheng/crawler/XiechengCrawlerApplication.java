@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties
 @MapperScan("com.xiecheng.crawler.mapper")
 @EnableAsync
-//@EnableScheduling
+@EnableScheduling
 public class XiechengCrawlerApplication {
 
     public static void main(String[] args) {

@@ -1,6 +1,7 @@
 package com.xiecheng.crawler;
 
 import com.xiecheng.crawler.service.RunningService;
+import com.xiecheng.crawler.service.biz.FirstDepthCrawlerBiz;
 import com.xiecheng.crawler.service.core.TaskQueue;
 import com.xiecheng.crawler.service.biz.SaveDetailBiz;
 import org.junit.Test;
@@ -19,6 +20,9 @@ public class XiechengCrawlerApplicationTests {
 
     @Resource
     private SaveDetailBiz saveDetailBiz;
+
+    @Resource
+    private FirstDepthCrawlerBiz firstDepthCrawlerBiz;
 
     @Resource
     private TaskQueue taskQueue;

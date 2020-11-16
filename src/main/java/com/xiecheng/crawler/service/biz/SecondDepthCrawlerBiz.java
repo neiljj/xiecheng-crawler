@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 /**
- * 二层采集逻辑
+ * 二层采集逻辑 （二层逻辑已变）
  * @author nijichang
  * @since 2020-11-05 14:38:06
  */
@@ -45,12 +45,15 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
 
     @Override
     public void process() {
-        ExecutorService service = new ThreadPoolExecutor(threadNum,Runtime.getRuntime().availableProcessors()*2,
-                5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.CallerRunsPolicy());
-        List<Future> futures = new ArrayList<>();
+        ExecutorService service = new ThreadPoolExecutor(threadNum, Runtime.getRuntime().availableProcessors() * 2,
+                5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(5), new ThreadPoolExecutor.CallerRunsPolicy());
         while (!TaskQueue.task2Queue.isEmpty()) {
-            Future future = service.submit(new SecondDepthCrawlerThread());
-            futures.add(future);
+            service.submit(new SecondDepthCrawlerThread());
+            try {
+                Thread.sleep(500);
+            }catch (InterruptedException e){
+
+            }
         }
         service.shutdown();
         while(true){
@@ -83,9 +86,11 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
             detailInfoDO.setUrl(task.getParam());
             //获取房间信息
             detailInfoDO.setRoomInfo(getRoomInfo(hotelId));
+            log.info("保存酒店详情信息入参{}",detailInfoDO);
             //数据库插入
             try {
                 detailInfoService.save(detailInfoDO);
+                log.info("酒店详情保存成功，酒店id:{}",hotelId);
             } catch (Exception e) {
                 log.info("酒店详情保存失败，酒店id:{},失败信息:{}", hotelId, e.getMessage());
             }
@@ -98,7 +103,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         detailInfoDO.setDecorateTime(ReUtil.getGroup0("([0-9]*)(?=年装修)",resultHtml));
         detailInfoDO.setRoomNum(ReUtil.getGroup0("([0-9]*)(?=间房)",resultHtml));
         Document document = Jsoup.parse(resultHtml);
-        detailInfoDO.setName(document.select("h2[class=cn_n]").text());
+        detailInfoDO.setName(document.select("h2[class=detail-headline_name  ]").text());
     }
 
     public String getRoomInfo(String hotelId){

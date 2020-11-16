@@ -57,8 +57,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
      */
     @Override
     public void process(){
-        ExecutorService service = new ThreadPoolExecutor(threadNum,Runtime.getRuntime().availableProcessors()*2,
-                5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.CallerRunsPolicy());
+        ExecutorService service = Executors.newFixedThreadPool(threadNum);
         int i = 0;
         while(!TaskQueue.taskQueue.isEmpty()){
             service.execute(new FirstDepthCrawlerThread());
@@ -66,6 +65,11 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
             if(i == 0){
                 await();
                 i++;
+            }
+            try {
+                Thread.sleep(200);
+            }catch (InterruptedException e){
+
             }
         }
         //线程池首先需要shutdown再判断isTerminated

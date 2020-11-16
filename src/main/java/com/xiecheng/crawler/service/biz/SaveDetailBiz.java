@@ -51,6 +51,11 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
                 5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.CallerRunsPolicy());
         while(!taskQueue.isEmpty()){
             service.submit(new SaveDetailCrawlerThread());
+            try {
+                Thread.sleep(1000);
+            }catch (InterruptedException e){
+
+            }
         }
         service.shutdown();
         while(true){
@@ -94,16 +99,20 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
             log.info("url：{}正在执行", task.getParam());
 
             String resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(), task.getParam(), null, 2000);
+            System.out.println(resultHtml);
             if (StringUtils.isNotEmpty(resultHtml)) {
                 secondDepthCrawlerBiz.setDetailInfo(detailInfoDO, resultHtml);
             }
+
             detailInfoDO.setHotelId(hotelId);
             detailInfoDO.setUrl(task.getParam());
             //获取房间信息
             detailInfoDO.setRoomInfo(secondDepthCrawlerBiz.getRoomInfo(hotelId));
+            log.info("保存酒店详情信息入参{}",detailInfoDO);
             //数据库插入
             try {
                 detailInfoService.save(detailInfoDO);
+                log.info("酒店详情保存成功，酒店id:{}",hotelId);
             } catch (Exception e) {
                 log.info("酒店详情保存失败，酒店id:{},失败信息:{}", hotelId, e.getMessage());
             }
