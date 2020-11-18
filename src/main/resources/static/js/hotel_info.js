@@ -33,18 +33,6 @@ layui.use(["layer", "element", "table", "form","laydate"], function () {
     });
 
     $('#qry-hotel-info').click(function () {
-        var search = {};
-        debugger;
-        $.each($(".layui-input-inline :input").serializeArray(),function (index,item) {
-            (item.name) && (search[item.name] = (item.value) ? item.value : null);
-            search[item.name] || (delete search[item.name]);
-        });
-        if (!search || $.isEmptyObject(search)) {
-            layer.msg("请至少填写一个查询条件!", {time: 3000, icon: 7});
-            return false;
-
-        }
-        search = JSON.stringify(search);
         table.reload("hotel-info",{
             method : 'post',
             where:{
