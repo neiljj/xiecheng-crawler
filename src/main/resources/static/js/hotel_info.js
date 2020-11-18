@@ -15,7 +15,7 @@ layui.use(["layer", "element", "table", "form","laydate"], function () {
         elem: "#hotel-info",
         url: '/crawler/manage/show_hotel_info',
         page: true,
-        height: "full-190",
+        height: "full-50",
         method: 'POST',
         id:"hotel-info",
         contentType:"application/json;charset=utf-8",

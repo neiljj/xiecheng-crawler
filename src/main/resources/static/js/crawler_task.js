@@ -14,7 +14,7 @@ layui.use(["layer", "element", "table", "form","laydate"], function () {
         elem: "#crawler-task",
         url: '/crawler/manage/show_crawler_task',
         page: true,
-        height: "full-190",
+        height: "full-50",
         method: 'POST',
         id:"grdContent",
         cols: [[
