@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>携程数据管理后台</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico}"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" href="../static/layui/css/layui.css">
+
+</head>
+<body>
+    <form class="layui-form">
+        <!-- 内容主体区域 -->
+        <div class="" style="padding: 15px;">
+            <div class="layui-row">
+                <!-- layui表单 -->
+                <form class="layui-form">
+                    <!-- layui-inline 在一个行中显示多个div -->
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">城市</label>
+                        <div class="layui-input-inline">
+                            <select name="city" id="city" lay-filter="city" class="data-select" >
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">品牌</label>
+                        <div class="layui-input-inline">
+                            <select name="brand" id="brand" lay-filter="brand" class="data-select">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">类型</label>
+                        <div class="layui-input-inline">
+                            <select name="type" id="type" lay-filter="type" class="data-select">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <a href="javascript:void(0)" id="btnAddTask" class="layui-btn">添加任务</a>
+                    </div>
+
+                    <div class="layui-inline">
+                        <a href="javascript:void(0)" id="btnUpdateCookie" class="layui-btn">更新cookie</a>
+                    </div>
+                </form>
+            </div>
+
+            <!--
+        layui-table 代表是一个表格
+        url : ajax获取数据的地址
+        page : 自动生成分页栏
+        height:auto 表格高度随着内容自适应
+        lay-filter相当于layui自己使用的ID
+    -->
+            <table class="layui-table" id="crawler-task">
+            </table>
+        </div>
+    </form>
+    <script type="text/javascript" src="../static/layui/layui.js" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:inline="javascript" src="../static/js/crawler_task.js" th:src="@{/js/crawler_task.js}"></script>
+    <script src="../static/js/common.js" th:src="@{/js/common.js}"></script>
+    <script type="text/html" id="statusEnum">
+        {{# if(d.status === 0){ }}
+        待采集
+        {{# }else if(d.status === 1){ }}
+        正在采集
+        {{# }else if(d.status ===2){ }}
+        已完成
+        {{# } }}
+    </script>
+    <script type="text/html" id="dateFormat">
+        <div>{{layui.util.toDateString(d.createTime, 'yyyy-MM-dd HH:mm:ss')}}</div>
+    </script>
+
+</body>
+</html>

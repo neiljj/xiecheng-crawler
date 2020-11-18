@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>携程数据管理后台</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico}"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" href="../static/layui/css/layui.css">
+
+</head>
+<body>
+    <form class="layui-form">
+        <div class="" style="padding: 15px;">
+            <div class="layui-row">
+                <div class="layui-inline">
+                    <label class="layui-form-label">酒店名</label>
+                    <div class="layui-input-inline" style="width: 150px;">
+                        <input type="text" name="hotelName" id="hotelName" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search" id="qry-detail-info">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!--
+        layui-table 代表是一个表格
+        url : ajax获取数据的地址
+        page : 自动生成分页栏
+        height:auto 表格高度随着内容自适应
+        lay-filter相当于layui自己使用的ID
+        -->
+            <table class="layui-table" id="detail-info">
+            </table>
+        </div>
+    </form>
+    <script type="text/javascript" src="../static/layui/layui.js" th:src="@{/layui/layui.js}"></script>
+    <script type="text/javascript" th:inline="javascript" src="../static/js/detail_info.js" th:src="@{/js/detail_info.js}"></script>
+    <script src="../static/js/common.js" th:src="@{/js/common.js}"></script>
+    <script type="text/html" id="dateFormat">
+        <div>{{layui.util.toDateString(d.createTime, 'yyyy-MM-dd HH:mm:ss')}}</div>
+    </script>
+</body>
+
+</html>

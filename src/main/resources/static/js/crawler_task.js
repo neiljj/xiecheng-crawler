@@ -2,11 +2,13 @@
 var $;
 var layer;
 var table;
+var element;
 layui.use(["layer", "element", "table", "form","laydate"], function () {
     //$即是jquery,layui自动内嵌了jquery，layui.$相当于获取了jquery对象
     $ = layui.jquery;
     table = layui.table;
     layer = layui.layer;
+    element = layui.element;
     //初始化表格
     var tableIns = table.render({
         elem: "#crawler-task",
@@ -69,7 +71,6 @@ layui.use(["layer", "element", "table", "form","laydate"], function () {
     });
 
     $('#btnUpdateCookie').click(function () {
-        debugger;
         layer.open({
             type:1,
             title:"更新Cookie",

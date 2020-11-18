@@ -48,7 +48,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
     @Resource
     private HotelInfoService hotelnfoService;
 
-    private String urlDomain = "https://hotels.ctrip.com";
+    private String urlDomain = "https://hotels.ctrip.com/hotels/detail/?hotelId=";
 
     private static BitMapBloomFilter bitMapBloomFilter = new BitMapBloomFilter(100);
 
@@ -58,19 +58,22 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
     @Override
     public void process(){
         ExecutorService service = Executors.newFixedThreadPool(threadNum);
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(5);
         int i = 0;
         while(!TaskQueue.taskQueue.isEmpty()){
-            service.execute(new FirstDepthCrawlerThread());
+            service.execute(new FirstDepthCrawlerThread(cyclicBarrier));
             //队列只有一个任务时，需要等待将翻页加入队列
             if(i == 0){
                 await();
                 i++;
             }
+
             try {
                 Thread.sleep(200);
             }catch (InterruptedException e){
 
             }
+
         }
         //线程池首先需要shutdown再判断isTerminated
         service.shutdown();
@@ -87,6 +90,11 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
      */
     @ThreadSafe
     public class FirstDepthCrawlerThread implements Runnable{
+        private CyclicBarrier cyclicBarrier;
+
+        public FirstDepthCrawlerThread(CyclicBarrier cyclicBarrier){
+            this.cyclicBarrier = cyclicBarrier;
+        }
         @Override
         public void run(){
             Map<String, String> headers = getMap();
@@ -153,31 +161,31 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
                 hotelInfoDO.setShortName(entity.getString("shortName"));
                 hotelInfoDO.setStar(StarEnum.getByCode(entity.getString("star")).map(StarEnum::getDesc).orElse(null));
                 hotelInfoDO.setParam(param);
-                String url = urlDomain + entity.getString("url");
+                String hotelId = ReUtil.getGroup0("(?<=\\/)([0-9]*)(?=.html)",entity.getString("url"));
+                String url = urlDomain + hotelId;
                 hotelInfoDO.setUrl(url);
                 hotelInfoDO.setPrice(priceMap.get(entity.getString("name")));
 //                //设置type 或brand属性,采用表驱动消除if-else,key存paramTag，depthTag
-                Map<List<Integer>, Consumer> actionMap = new HashMap<>(6);
-                actionMap.put(Lists.newArrayList(0,0),null);
-                actionMap.put(Lists.newArrayList(0,1),null);
-                actionMap.put(Lists.newArrayList(1,0),() -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)",param)).map(TypeEnum::getDesc).orElse(null)));
-                actionMap.put(Lists.newArrayList(1,1),() -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)",param)).map(TypeEnum::getDesc).orElse(null)));
-                actionMap.put(Lists.newArrayList(2,0),() -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)",param))));
-                actionMap.put(Lists.newArrayList(2,1),() -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)(?=&)",param))));
-                actionMap.put(Lists.newArrayList(3,0),() -> {
-                    hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)",param)));
-                    hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)",param)).map(TypeEnum::getDesc).orElse(null));
-                });
-                actionMap.put(Lists.newArrayList(3,1),() -> {
-                    hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*?)(?=&)",param)));
-                    hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)",param)).map(TypeEnum::getDesc).orElse(null));
-                });
-                actionMap.get(Lists.newArrayList(paramTag,depthTag)).apply();
+                if(paramTag != 0) {
+                    Map<List<Integer>, Consumer> actionMap = new HashMap<>(6);
+                    actionMap.put(Lists.newArrayList(1, 0), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)", param)).map(TypeEnum::getDesc).orElse(null)));
+                    actionMap.put(Lists.newArrayList(1, 1), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)", param)).map(TypeEnum::getDesc).orElse(null)));
+                    actionMap.put(Lists.newArrayList(2, 0), () -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)", param))));
+                    actionMap.put(Lists.newArrayList(2, 1), () -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)(?=&)", param))));
+                    actionMap.put(Lists.newArrayList(3, 0), () -> {
+                        hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)", param)));
+                        hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)", param)).map(TypeEnum::getDesc).orElse(null));
+                    });
+                    actionMap.put(Lists.newArrayList(3, 1), () -> {
+                        hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*?)(?=&)", param)));
+                        hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)", param)).map(TypeEnum::getDesc).orElse(null));
+                    });
+                    actionMap.get(Lists.newArrayList(paramTag,depthTag)).apply();
+                }
                 //将url放入第二层采集队列，采用布隆表去重,需要将url后缀去掉
-                String urlFilter = ReUtil.getGroup0("(.*)(?=\\?)",url);
-                if(!bitMapBloomFilter.contains(urlFilter)){
-                    bitMapBloomFilter.add(urlFilter);
-                    TaskQueue.addQueue2(urlFilter);
+                if(!bitMapBloomFilter.contains(url)){
+                    bitMapBloomFilter.add(url);
+                    TaskQueue.addQueue2(url);
                 }
                 infos.add(hotelInfoDO);
             }

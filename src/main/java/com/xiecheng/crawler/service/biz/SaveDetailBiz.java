@@ -2,6 +2,7 @@ package com.xiecheng.crawler.service.biz;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
 import cn.hutool.core.util.ReUtil;
+import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -50,12 +51,13 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
         ExecutorService service = new ThreadPoolExecutor(threadNum,Runtime.getRuntime().availableProcessors()*2,
                 5, TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.CallerRunsPolicy());
         while(!taskQueue.isEmpty()){
-            service.submit(new SaveDetailCrawlerThread());
-            try {
-                Thread.sleep(1000);
-            }catch (InterruptedException e){
-
-            }
+//            service.submit(new SaveDetailCrawlerThread());
+//            try {
+//                Thread.sleep(1000);
+//            }catch (InterruptedException e){
+//
+//            }
+            new SaveDetailCrawlerThread().call();
         }
         service.shutdown();
         while(true){
@@ -99,7 +101,6 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
             log.info("url：{}正在执行", task.getParam());
 
             String resultHtml = secondDepthCrawlerServiceImpl.crawl(task.getParam(), task.getParam(), null, 2000);
-            System.out.println(resultHtml);
             if (StringUtils.isNotEmpty(resultHtml)) {
                 secondDepthCrawlerBiz.setDetailInfo(detailInfoDO, resultHtml);
             }
@@ -118,5 +119,11 @@ public class SaveDetailBiz extends AbstractCrawlerBiz{
             }
             return null;
         }
+    }
+
+    public static void main(String[] args){
+        String url  = "https://hotels.ctrip.com/hotels/detail/?hotelId=8065838";
+
+        System.out.println(HttpUtil.get(url));
     }
 }

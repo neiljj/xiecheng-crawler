@@ -66,7 +66,8 @@ public class CrawlerDataController {
         Wrapper<HotelInfoDO> wrapper = new QueryWrapper<HotelInfoDO>()
                 .eq(StringUtils.isNotEmpty(req.getBrand()),"brand",req.getBrand())
                 .eq(StringUtils.isNotEmpty(req.getCity()),"city",req.getCity())
-                .eq(StringUtils.isNotEmpty(req.getHotelName()),"hotel_name",req.getHotelName())
+                .eq(StringUtils.isNotEmpty(req.getType()),"type",req.getType())
+                .like(StringUtils.isNotEmpty(req.getHotelName()),"hotel_name",req.getHotelName())
                 .between(StringUtils.isNotEmpty(req.getPriceBegin()) && StringUtils.isNotEmpty(req.getPriceEnd()),"price",req.getPriceBegin(),req.getPriceEnd())
                 .between(start != null && end != null,"create_time",start,end)
                 ;
@@ -86,8 +87,7 @@ public class CrawlerDataController {
             end = new Date(Long.valueOf(req.getCreateTimeEnd()));
         }
         Wrapper<DetailInfoDO> wrapper = new QueryWrapper<DetailInfoDO>()
-                .eq(StringUtils.isNotEmpty(req.getCity()),"city",req.getCity())
-                .eq(StringUtils.isNotEmpty(req.getHotelName()),"name",req.getHotelName())
+                .like(StringUtils.isNotEmpty(req.getHotelName()),"name",req.getHotelName())
                 .between(start != null && end != null,"create_time",start,end)
                 ;
         IPage<DetailInfoDO> page = detailInfoService.page(new Page<>(req.getPage(),req.getLimit()),wrapper);
@@ -104,6 +104,8 @@ public class CrawlerDataController {
         model.addAttribute("customer",customerDO);
         return "manage_center";
     }
+
+
 
     @RequestMapping("/show_crawler_task")
     @ResponseBody
@@ -171,4 +173,18 @@ public class CrawlerDataController {
         return ResponseResult.success();
     }
 
+    @RequestMapping("/crawler_task")
+    public String crawlerTask(){
+        return "crawler_task";
+    }
+
+    @RequestMapping("/hotel_info")
+    public String hotelInfo(){
+        return "hotel_info";
+    }
+
+    @RequestMapping("/detail_info")
+    public String detailInfo(){
+        return "detail_info";
+    }
 }

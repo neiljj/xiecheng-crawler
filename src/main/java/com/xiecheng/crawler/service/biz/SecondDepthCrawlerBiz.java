@@ -66,7 +66,6 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
 
     @ThreadSafe
     public class SecondDepthCrawlerThread implements Callable<String> {
-
         @Override
         public String call() {
             Task task = TaskQueue.task2Queue.poll();
@@ -86,7 +85,6 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
             detailInfoDO.setUrl(task.getParam());
             //获取房间信息
             detailInfoDO.setRoomInfo(getRoomInfo(hotelId));
-            log.info("保存酒店详情信息入参{}",detailInfoDO);
             //数据库插入
             try {
                 detailInfoService.save(detailInfoDO);

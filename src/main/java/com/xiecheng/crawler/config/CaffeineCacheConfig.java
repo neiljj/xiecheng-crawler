@@ -18,9 +18,6 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @Slf4j
 public class CaffeineCacheConfig {
-
-
-
     /**
      * 配置缓存管理器
      *
@@ -52,7 +49,6 @@ public class CaffeineCacheConfig {
             //默认的数据加载实现，当调用get取值的时候，如果key没有对应的值，就调用这个方法进行加载
             @Override
             public Object load(Object key) throws Exception {
-                log.info("加载单个缓存");
                 return null;
             }
 

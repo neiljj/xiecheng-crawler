@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
 import com.xiecheng.crawler.service.core.TaskQueue;
 import com.xiecheng.crawler.service.core.service.impl.CrawlerTaskService;
-import com.xiecheng.crawler.service.impl.RunningServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

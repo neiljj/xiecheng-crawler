@@ -9,7 +9,5 @@ import lombok.Data;
 @Data
 public class QryDetailInfoReq extends BaseReq {
 
-    private String city;
-
     private String hotelName;
 }
