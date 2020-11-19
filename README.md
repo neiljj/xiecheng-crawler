@@ -14,7 +14,7 @@
 1. 数据库创建xiecheng库，字符集为utf8
 2. 运行tables文件，建表
 3. 更新配置里的cookie
-4. 运行单测XiechengCrawlerApplicationTests.test()方法，初始化数据库数据
+4. 运行单测XiechengCrawlerApplicationTests中saveCity()和saveBrand()，初始化数据库数据
 5. 启动XiechengCrawlerApplication，访问localhost:8080/crawler
 6. 注册+登录+起任务
 
