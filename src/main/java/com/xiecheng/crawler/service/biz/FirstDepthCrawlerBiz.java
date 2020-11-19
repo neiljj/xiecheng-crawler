@@ -43,7 +43,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
     private CrawlerService firstDepthCrawlerServiceImpl;
 
     @Value("${crawler.uri}")
-    private String uri;
+    private String uri ;
 
     @Resource
     private HotelInfoService hotelnfoService;
@@ -58,10 +58,9 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
     @Override
     public void process(){
         ExecutorService service = Executors.newFixedThreadPool(threadNum);
-        CyclicBarrier cyclicBarrier = new CyclicBarrier(5);
         int i = 0;
         while(!TaskQueue.taskQueue.isEmpty()){
-            service.execute(new FirstDepthCrawlerThread(cyclicBarrier));
+            service.execute(new FirstDepthCrawlerThread());
             //队列只有一个任务时，需要等待将翻页加入队列
             if(i == 0){
                 await();
@@ -90,11 +89,6 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
      */
     @ThreadSafe
     public class FirstDepthCrawlerThread implements Runnable{
-        private CyclicBarrier cyclicBarrier;
-
-        public FirstDepthCrawlerThread(CyclicBarrier cyclicBarrier){
-            this.cyclicBarrier = cyclicBarrier;
-        }
         @Override
         public void run(){
             Map<String, String> headers = getMap();
@@ -104,8 +98,6 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
             log.info("参数{}正在执行", task.getParam());
             //异常处理由切面完成
             String jsonResult = firstDepthCrawlerServiceImpl.crawl(uri, task.getParam(), headers, 2000);
-            taskNum.incrementAndGet();
-
             if (StringUtils.isNotEmpty(jsonResult)) {
                 //只有初始化的url需要将翻页url加入队列
                 if (task.getDepthTag() == 0) {
@@ -118,7 +110,10 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
                         hotelnfoService.insertBrand(infos);
                     } else if (task.getParamTag() == 2) {
                         hotelnfoService.insertType(infos);
+                    }else{
+                        hotelnfoService.saveBatch(infos);
                     }
+                    log.info("{}批量保存成功",task.getParam());
                 } catch (Exception e) {
                     log.info("批量保存失败，失败信息{}", e.getMessage());
                 }
@@ -244,10 +239,5 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
             }
         }
         return priceMap;
-    }
-    public static void main(String[] args){
-        String url = "https://hotels.ctrip.com/hotel/41796021.html?isFull=F#ctm_ref=hod_sr_map_dl_txt_1";
-
-        System.out.println(ReUtil.getGroup0("(.*)(?=\\?)",url));
     }
 }

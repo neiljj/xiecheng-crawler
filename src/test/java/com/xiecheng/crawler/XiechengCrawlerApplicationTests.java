@@ -1,5 +1,6 @@
 package com.xiecheng.crawler;
 
+import com.xiecheng.crawler.entity.Task;
 import com.xiecheng.crawler.service.RunningService;
 import com.xiecheng.crawler.service.biz.FirstDepthCrawlerBiz;
 import com.xiecheng.crawler.service.core.TaskQueue;
@@ -29,7 +30,17 @@ public class XiechengCrawlerApplicationTests {
     private TaskQueue taskQueue;
     @Test
     public void test(){
-        runningService.run();
+        String param = "cityId=25";
+        Task task = new Task();
+        task.setParamTag(0);
+        task.setParam(param);
+        task.setDepthTag(0);
+        try {
+            TaskQueue.taskQueue.put(task);
+        }catch (InterruptedException e){
+
+        }
+        firstDepthCrawlerBiz.process();
     }
 
     @Test
