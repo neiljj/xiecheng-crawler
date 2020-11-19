@@ -3,7 +3,6 @@ package com.xiecheng.crawler;
 import com.xiecheng.crawler.service.RunningService;
 import com.xiecheng.crawler.service.biz.FirstDepthCrawlerBiz;
 import com.xiecheng.crawler.service.core.TaskQueue;
-import com.xiecheng.crawler.service.biz.SaveDetailBiz;
 import com.xiecheng.crawler.service.core.service.impl.CacheService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +18,6 @@ public class XiechengCrawlerApplicationTests {
     @Resource
     private RunningService runningService;
 
-    @Resource
-    private SaveDetailBiz saveDetailBiz;
 
     @Resource
     private FirstDepthCrawlerBiz firstDepthCrawlerBiz;
@@ -33,11 +30,6 @@ public class XiechengCrawlerApplicationTests {
     @Test
     public void test(){
         runningService.run();
-    }
-
-    @Test
-    public void test2(){
-        saveDetailBiz.process();
     }
 
     @Test

@@ -70,6 +70,7 @@ public class CrawlerDataController {
                 .like(StringUtils.isNotEmpty(req.getHotelName()),"hotel_name",req.getHotelName())
                 .between(StringUtils.isNotEmpty(req.getPriceBegin()) && StringUtils.isNotEmpty(req.getPriceEnd()),"price",req.getPriceBegin(),req.getPriceEnd())
                 .between(start != null && end != null,"create_time",start,end)
+                .orderByDesc("create_time")
                 ;
         IPage<HotelInfoDO> page = hotelnfoService.page(new Page<>(req.getPage(),req.getLimit()),wrapper);
         log.info("分页查询酒店信息成功{}", JSONUtil.toJsonStr(page));
@@ -89,6 +90,7 @@ public class CrawlerDataController {
         Wrapper<DetailInfoDO> wrapper = new QueryWrapper<DetailInfoDO>()
                 .like(StringUtils.isNotEmpty(req.getHotelName()),"name",req.getHotelName())
                 .between(start != null && end != null,"create_time",start,end)
+                .orderByDesc("create_time")
                 ;
         IPage<DetailInfoDO> page = detailInfoService.page(new Page<>(req.getPage(),req.getLimit()),wrapper);
         log.info("分页查询酒店详情成功{}", JSONUtil.toJsonStr(page));

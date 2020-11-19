@@ -154,7 +154,11 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
                 HotelInfoDO hotelInfoDO = new HotelInfoDO();
                 JSONObject entity = (JSONObject)array.get(i);
                 hotelInfoDO.setHotelName(entity.getString("name"));
-                hotelInfoDO.setCity(CityEnum.getByCode(ReUtil.getGroup0("(?<=cityId=)[0-9]*",param)).map(CityEnum::getName).orElse(null));
+                String cityId = ReUtil.getGroup0("(?<=cityId=)[0-9]*",param);
+                TaskQueue.citys.forEach((k,v) -> {
+                    if(v.equals(cityId))
+                        hotelInfoDO.setCity(k);
+                });
                 hotelInfoDO.setAddress(entity.getString("address"));
                 hotelInfoDO.setScore(entity.getString("score"));
                 hotelInfoDO.setDpcount(entity.getString("dpscore"));
@@ -167,20 +171,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
                 hotelInfoDO.setPrice(priceMap.get(entity.getString("name")));
 //                //设置type 或brand属性,采用表驱动消除if-else,key存paramTag，depthTag
                 if(paramTag != 0) {
-                    Map<List<Integer>, Consumer> actionMap = new HashMap<>(6);
-                    actionMap.put(Lists.newArrayList(1, 0), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)", param)).map(TypeEnum::getDesc).orElse(null)));
-                    actionMap.put(Lists.newArrayList(1, 1), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)", param)).map(TypeEnum::getDesc).orElse(null)));
-                    actionMap.put(Lists.newArrayList(2, 0), () -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)", param))));
-                    actionMap.put(Lists.newArrayList(2, 1), () -> hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)(?=&)", param))));
-                    actionMap.put(Lists.newArrayList(3, 0), () -> {
-                        hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*)", param)));
-                        hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)", param)).map(TypeEnum::getDesc).orElse(null));
-                    });
-                    actionMap.put(Lists.newArrayList(3, 1), () -> {
-                        hotelInfoDO.setBrand(TaskQueue.brands.get(ReUtil.getGroup0("(?<=brand=)(.*?)(?=&)", param)));
-                        hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)", param)).map(TypeEnum::getDesc).orElse(null));
-                    });
-                    actionMap.get(Lists.newArrayList(paramTag,depthTag)).apply();
+                   setTypeAndBrand(hotelInfoDO,param,paramTag,depthTag);
                 }
                 //将url放入第二层采集队列，采用布隆表去重,需要将url后缀去掉
                 if(!bitMapBloomFilter.contains(url)){
@@ -191,6 +182,43 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
             }
         }
         return infos;
+    }
+
+    public void setTypeAndBrand(HotelInfoDO hotelInfoDO,String param,int paramTag,int depthTag){
+        Map<List<Integer>, Consumer> actionMap = new HashMap<>(6);
+        actionMap.put(Lists.newArrayList(1, 0), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)", param)).map(TypeEnum::getDesc).orElse(null)));
+        actionMap.put(Lists.newArrayList(1, 1), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)", param)).map(TypeEnum::getDesc).orElse(null)));
+        actionMap.put(Lists.newArrayList(2, 0), () ->
+                TaskQueue.brands.forEach((k,v) -> {
+                    if(v.equals(ReUtil.getGroup0("(?<=brand=)(.*)", param))){
+                        hotelInfoDO.setBrand(k);
+                    }
+                })
+        );
+        actionMap.put(Lists.newArrayList(2, 1), () ->
+                TaskQueue.brands.forEach((k, v) -> {
+                    if (v.equals(ReUtil.getGroup0("(?<=brand=)(.*)", param))) {
+                        hotelInfoDO.setBrand(k);
+                    }
+                })
+        );
+        actionMap.put(Lists.newArrayList(3, 0), () -> {
+            TaskQueue.brands.forEach((k, v) -> {
+                if (v.equals(ReUtil.getGroup0("(?<=brand=)(.*)", param))) {
+                    hotelInfoDO.setBrand(k);
+                }
+            });
+            hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)", param)).map(TypeEnum::getDesc).orElse(null));
+        });
+        actionMap.put(Lists.newArrayList(3, 1), () -> {
+            TaskQueue.brands.forEach((k, v) -> {
+                if (v.equals(ReUtil.getGroup0("(?<=brand=)(.*)", param))) {
+                    hotelInfoDO.setBrand(k);
+                }
+            });
+            hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*?)(?=&)", param)).map(TypeEnum::getDesc).orElse(null));
+        });
+        actionMap.get(Lists.newArrayList(paramTag,depthTag)).apply();
     }
 
     private Map<String,String> getMap(){
