@@ -25,7 +25,7 @@ public abstract class AbstractCrawlerBiz {
 
     public void await(){
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
         }catch (InterruptedException e){
             log.error(e.getMessage());
         }
