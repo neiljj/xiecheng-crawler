@@ -10,7 +10,13 @@
 
 后续逐步做成任务可配置化，包含前端页面，添加采集任务，采集结果展示等
 
-
+## 后台使用说明
+1. 数据库创建xiecheng库，字符集为utf8
+2. 运行tables文件，建表
+3. 更新配置里的cookie
+4. 运行单测XiechengCrawlerApplicationTests.test()方法，初始化数据库数据
+5. 启动XiechengCrawlerApplication，访问localhost:8080/crawler
+6. 注册+登录+起任务
 
 
 ##### 特别说明
