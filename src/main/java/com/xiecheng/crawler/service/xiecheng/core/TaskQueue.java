@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.service.core;
+package com.xiecheng.crawler.service.xiecheng.core;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
 import cn.hutool.core.lang.Assert;
@@ -16,12 +16,13 @@ import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.enums.TypeEnum;
 import com.xiecheng.crawler.function.Consumer;
-import com.xiecheng.crawler.service.core.service.impl.BrandService;
-import com.xiecheng.crawler.service.core.service.impl.CityService;
-import com.xiecheng.crawler.service.core.service.impl.CrawlerTaskService;
-import com.xiecheng.crawler.service.core.service.impl.HotelInfoService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.BrandService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.CityService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.CrawlerTaskService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.HotelInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
+import org.omg.CORBA.SystemException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -128,6 +129,52 @@ public class TaskQueue {
             task2Queue.put(task);
         }catch (InterruptedException e){
             log.error("添加二层队列发生错误{}",e.getMessage());
+        }
+    }
+    /**
+     * 添加一条任务到队列
+     *
+     * @author nijichang
+     * @since 2021/4/23 4:46 PM
+     */
+    public void addOneToQueue(Long id){
+        if(Objects.isNull(id)){
+            log.error("加载单个任务的id不能为空");
+            return;
+        }
+        final CrawlerTaskDO crawlerTaskDO = crawlerTaskService.getById(id);
+        try {
+            if (Objects.nonNull(crawlerTaskDO)) {
+                //根据city查询city code
+                String cityCode = citys.get(crawlerTaskDO.getCity());
+                String param = "cityId=" + cityCode;
+                if (StringUtils.isNotEmpty(crawlerTaskDO.getType())) {
+                    param += "&type=" + TypeEnum.getByName(crawlerTaskDO.getType()).map(TypeEnum::getCode).orElse(null);
+                }
+                if (StringUtils.isNotEmpty(crawlerTaskDO.getBrand())) {
+                    param += "&brand=" + brands.get(crawlerTaskDO.getBrand());
+                }
+
+                Task task = new Task();
+                task.setParam(param);
+                task.setDepthTag(0);
+                //参数类型改为匹配
+                Map<List<Boolean>, Consumer> actionMap = new HashMap<>(4);
+                actionMap.put(Lists.newArrayList(true, true), () -> task.setParamTag(3));
+                actionMap.put(Lists.newArrayList(true, false), () -> task.setParamTag(2));
+                actionMap.put(Lists.newArrayList(false, true), () -> task.setParamTag(1));
+                actionMap.put(Lists.newArrayList(false, false), () -> task.setParamTag(0));
+                actionMap.get(Lists.newArrayList(StringUtils.isNotEmpty(crawlerTaskDO.getBrand()), StringUtils.isNotEmpty(crawlerTaskDO.getType()))).apply();
+                try {
+                    taskQueue.put(task);
+                } catch (InterruptedException e) {
+                    log.error("添加队列发生错误{}", e.getMessage());
+                }
+                //更改任务状态
+                crawlerTaskDO.setStatus(1);
+            }
+        }finally {
+            crawlerTaskService.updateById(crawlerTaskDO);
         }
     }
 

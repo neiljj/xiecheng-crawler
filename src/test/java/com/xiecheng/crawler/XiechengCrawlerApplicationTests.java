@@ -1,10 +1,10 @@
 package com.xiecheng.crawler;
 
 import com.xiecheng.crawler.entity.Task;
-import com.xiecheng.crawler.service.RunningService;
-import com.xiecheng.crawler.service.biz.FirstDepthCrawlerBiz;
-import com.xiecheng.crawler.service.core.TaskQueue;
-import com.xiecheng.crawler.service.core.service.impl.CacheService;
+import com.xiecheng.crawler.service.RunningStrategyService;
+import com.xiecheng.crawler.service.xiecheng.biz.FirstDepthCrawlerBiz;
+import com.xiecheng.crawler.service.xiecheng.core.TaskQueue;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.CacheService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 public class XiechengCrawlerApplicationTests {
 
     @Resource
-    private RunningService runningService;
+    private RunningStrategyService runningService;
 
 
     @Resource
@@ -30,7 +30,7 @@ public class XiechengCrawlerApplicationTests {
     private TaskQueue taskQueue;
     @Test
     public void test(){
-        String param = "cityId=25";
+        String param = "cityId=58";
         Task task = new Task();
         task.setParamTag(0);
         task.setParam(param);

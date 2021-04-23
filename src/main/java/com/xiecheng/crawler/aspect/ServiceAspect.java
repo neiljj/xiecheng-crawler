@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ServiceAspect {
 
-    @Around("execution(* com.xiecheng.crawler.service.impl..*(..))")
+    @Around("execution(* com.xiecheng.crawler.service..*(..)) ")
     public Object around(ProceedingJoinPoint joinPoint){
         long start = System.currentTimeMillis();
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
@@ -31,7 +31,7 @@ public class ServiceAspect {
             log.error(e.getMessage());
 
         }finally {
-            log.info("{} 耗时: {}ms 返回: {}",methodSignature,System.currentTimeMillis() - start, result instanceof String ? result.toString().substring(0,1000):null);
+            log.info("{} 耗时: {}ms 返回: {}",methodSignature,System.currentTimeMillis() - start, result instanceof String ? result.toString().trim():null);
         }
         return result;
     }

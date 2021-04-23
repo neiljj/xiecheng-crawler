@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.service.core.service.impl;
+package com.xiecheng.crawler.service.xiecheng.core.service.impl;
 
 import com.xiecheng.crawler.entity.po.CookieDO;
 import lombok.extern.slf4j.Slf4j;

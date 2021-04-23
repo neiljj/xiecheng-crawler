@@ -1,20 +1,20 @@
-package com.xiecheng.crawler.service.biz;
+package com.xiecheng.crawler.service.xiecheng.biz;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
 import cn.hutool.core.util.ReUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.xiecheng.crawler.function.Consumer;
-import com.xiecheng.crawler.service.core.service.impl.HotelInfoService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.HotelInfoService;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
-import com.xiecheng.crawler.enums.CityEnum;
 import com.xiecheng.crawler.enums.StarEnum;
 import com.xiecheng.crawler.enums.TypeEnum;
-import com.xiecheng.crawler.service.CrawlerService;
+import com.xiecheng.crawler.service.xiecheng.CrawlerService;
 import com.xiecheng.crawler.entity.Task;
-import com.xiecheng.crawler.service.core.TaskQueue;
+import com.xiecheng.crawler.service.xiecheng.core.TaskQueue;
 import lombok.extern.slf4j.Slf4j;
 import net.jcip.annotations.ThreadSafe;
 import org.assertj.core.util.Lists;
@@ -60,19 +60,13 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
         ExecutorService service = Executors.newFixedThreadPool(threadNum);
         int i = 0;
         while(!TaskQueue.taskQueue.isEmpty()){
-            service.execute(new FirstDepthCrawlerThread());
+            Task task = TaskQueue.taskQueue.poll();
+            service.execute(new FirstDepthCrawlerThread(task));
             //队列只有一个任务时，需要等待将翻页加入队列
             if(i == 0){
                 await();
                 i++;
             }
-
-            try {
-                Thread.sleep(200);
-            }catch (InterruptedException e){
-
-            }
-
         }
         //线程池首先需要shutdown再判断isTerminated
         service.shutdown();
@@ -89,16 +83,18 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
      */
     @ThreadSafe
     public class FirstDepthCrawlerThread implements Runnable{
+        private Task task;
+
+        public FirstDepthCrawlerThread(Task task){this.task = task;}
         @Override
         public void run(){
             Map<String, String> headers = getMap();
-            Task task = TaskQueue.taskQueue.poll();
             log.info("当前第一层队列任务：{}", TaskQueue.taskQueue.size());
 
             log.info("参数{}正在执行", task.getParam());
             //异常处理由切面完成
             String jsonResult = firstDepthCrawlerServiceImpl.crawl(uri, task.getParam(), headers, 2000);
-            if (StringUtils.isNotEmpty(jsonResult)) {
+            if (StringUtils.isNotEmpty(jsonResult) && JSONUtil.isJson(jsonResult)) {
                 //只有初始化的url需要将翻页url加入队列
                 if (task.getDepthTag() == 0) {
                     taskToQueue(jsonResult, task.getParam(), task.getParamTag());
@@ -179,7 +175,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
         return infos;
     }
 
-    public void setTypeAndBrand(HotelInfoDO hotelInfoDO,String param,int paramTag,int depthTag){
+    private void setTypeAndBrand(HotelInfoDO hotelInfoDO,String param,int paramTag,int depthTag){
         Map<List<Integer>, Consumer> actionMap = new HashMap<>(6);
         actionMap.put(Lists.newArrayList(1, 0), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)", param)).map(TypeEnum::getDesc).orElse(null)));
         actionMap.put(Lists.newArrayList(1, 1), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)", param)).map(TypeEnum::getDesc).orElse(null)));

@@ -1,10 +1,11 @@
-package com.xiecheng.crawler.service;
+package com.xiecheng.crawler.service.xiecheng;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
-import com.xiecheng.crawler.service.core.TaskQueue;
-import com.xiecheng.crawler.service.core.service.impl.CrawlerTaskService;
+import com.xiecheng.crawler.service.RunningStrategyService;
+import com.xiecheng.crawler.service.xiecheng.core.TaskQueue;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.CrawlerTaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.util.List;
 public class ScheduleCrawlerTaskService {
 
     @Resource
-    private RunningService runningService;
+    private RunningStrategyService runningService;
 
     @Resource
     private CrawlerTaskService crawlerTaskService;

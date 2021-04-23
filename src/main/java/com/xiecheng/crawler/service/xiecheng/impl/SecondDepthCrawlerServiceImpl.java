@@ -1,7 +1,7 @@
-package com.xiecheng.crawler.service.impl;
+package com.xiecheng.crawler.service.xiecheng.impl;
 
 import cn.hutool.http.HttpUtil;
-import com.xiecheng.crawler.service.CrawlerService;
+import com.xiecheng.crawler.service.xiecheng.CrawlerService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

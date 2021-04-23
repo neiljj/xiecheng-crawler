@@ -9,7 +9,7 @@ import com.xiecheng.crawler.entity.ResponseResult;
 import com.xiecheng.crawler.entity.po.CustomerDO;
 import com.xiecheng.crawler.entity.vo.CustomerVo;
 import com.xiecheng.crawler.utils.mapstruct.Mapping;
-import com.xiecheng.crawler.service.core.service.impl.CustomerService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.CustomerService;
 import com.xiecheng.crawler.utils.JwtUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Controller;

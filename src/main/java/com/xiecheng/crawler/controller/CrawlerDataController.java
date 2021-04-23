@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xiecheng.crawler.config.RedisConfig;
 import com.xiecheng.crawler.constant.MessageConstant;
 import com.xiecheng.crawler.entity.ResponseResult;
 import com.xiecheng.crawler.entity.po.*;
@@ -14,11 +15,12 @@ import com.xiecheng.crawler.entity.vo.req.AddCrawlerTaskReq;
 import com.xiecheng.crawler.entity.vo.req.QryCrawlerTaskReq;
 import com.xiecheng.crawler.entity.vo.req.QryDetailInfoReq;
 import com.xiecheng.crawler.entity.vo.req.QryHotelInfoReq;
-import com.xiecheng.crawler.service.core.service.impl.*;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.*;
 import com.xiecheng.crawler.utils.JwtUtils;
 import com.xiecheng.crawler.utils.mapstruct.Mapping;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -52,6 +54,8 @@ public class CrawlerDataController {
 
     @Resource
     private CookieService cookieService;
+
+    private StringRedisTemplate stringRedisTemplate;
 
     @RequestMapping("/show_hotel_info")
     @ResponseBody
@@ -155,6 +159,8 @@ public class CrawlerDataController {
         CrawlerTaskDO crawlerTaskDO = Mapping.instance.toCrawlerTaskDO(req);
         crawlerTaskDO.setCreateTime(new Date());
         crawlerTaskService.save(crawlerTaskDO);
+        //新增任务发送监听消息
+        stringRedisTemplate.convertAndSend(RedisConfig.NEW_CRAWLER_TASK,String.valueOf(crawlerTaskDO.getId()));
         log.info("采集任务{}新建成功",req);
         return ResponseResult.success();
     }

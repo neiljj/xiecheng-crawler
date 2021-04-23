@@ -1,7 +1,7 @@
 package com.xiecheng.crawler.controller;
 
 import com.xiecheng.crawler.entity.ResponseResult;
-import com.xiecheng.crawler.service.RunningService;
+import com.xiecheng.crawler.service.RunningStrategyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,13 +17,13 @@ import javax.annotation.Resource;
 @RequestMapping("/api")
 public class CrawlerController {
 
-    @Resource
-    private RunningService runningService ;
-
-    @RequestMapping("/run")
-    @ResponseBody
-    public ResponseResult crawlerStart(){
-        runningService.run();
-        return ResponseResult.success();
-    }
+//    @Resource
+//    private RunningStrategyService runningService ;
+//
+//    @RequestMapping("/run")
+//    @ResponseBody
+//    public ResponseResult crawlerStart(){
+//        runningService.run();
+//        return ResponseResult.success();
+//    }
 }

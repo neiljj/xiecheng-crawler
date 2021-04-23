@@ -1,10 +1,8 @@
-package com.xiecheng.crawler.service.biz;
+package com.xiecheng.crawler.service.xiecheng.biz;
 
-import com.xiecheng.crawler.service.core.service.impl.CacheService;
-import com.xiecheng.crawler.service.core.service.impl.CookieService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.CacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 
 import javax.annotation.Resource;
 import java.util.concurrent.atomic.AtomicInteger;

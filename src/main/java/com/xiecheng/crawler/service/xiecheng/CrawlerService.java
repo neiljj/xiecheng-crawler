@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.service;
+package com.xiecheng.crawler.service.xiecheng;
 
 
 import java.util.Map;
@@ -10,7 +10,6 @@ import java.util.Map;
 public interface CrawlerService {
 
     /**
-     * 采集逻辑
      * @param uri 链接
      */
     String crawl(String uri, String data, Map<String,String> headers, int timeout);

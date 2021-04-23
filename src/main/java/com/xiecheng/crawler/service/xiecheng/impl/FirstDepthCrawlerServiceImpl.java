@@ -1,6 +1,6 @@
-package com.xiecheng.crawler.service.impl;
+package com.xiecheng.crawler.service.xiecheng.impl;
 
-import com.xiecheng.crawler.service.CrawlerService;
+import com.xiecheng.crawler.service.xiecheng.CrawlerService;
 import com.xiecheng.crawler.utils.HttpUtils;
 import org.springframework.stereotype.Service;
 

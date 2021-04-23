@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.service.biz;
+package com.xiecheng.crawler.service.xiecheng.biz;
 
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.json.JSONUtil;
@@ -9,9 +9,9 @@ import com.xiecheng.crawler.entity.RoomInfo;
 import com.xiecheng.crawler.entity.StaticInfoData;
 import com.xiecheng.crawler.entity.Task;
 import com.xiecheng.crawler.entity.po.DetailInfoDO;
-import com.xiecheng.crawler.service.CrawlerService;
-import com.xiecheng.crawler.service.core.service.impl.DetailInfoService;
-import com.xiecheng.crawler.service.core.TaskQueue;
+import com.xiecheng.crawler.service.xiecheng.CrawlerService;
+import com.xiecheng.crawler.service.xiecheng.core.service.impl.DetailInfoService;
+import com.xiecheng.crawler.service.xiecheng.core.TaskQueue;
 import com.xiecheng.crawler.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.jcip.annotations.ThreadSafe;
@@ -52,12 +52,8 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         ExecutorService service = new ThreadPoolExecutor(threadNum, Runtime.getRuntime().availableProcessors() * 2,
                 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>(5), new ThreadPoolExecutor.CallerRunsPolicy());
         while (!TaskQueue.task2Queue.isEmpty()) {
-            service.submit(new SecondDepthCrawlerThread());
-            try {
-                Thread.sleep(500);
-            }catch (InterruptedException e){
-
-            }
+            Task task = TaskQueue.task2Queue.poll();
+            service.submit(new SecondDepthCrawlerThread(task));
         }
         service.shutdown();
         while(true){
@@ -70,9 +66,12 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
 
     @ThreadSafe
     public class SecondDepthCrawlerThread implements Callable<String> {
+
+        private Task task;
+
+        public SecondDepthCrawlerThread(Task task){this.task = task;}
         @Override
         public String call() {
-            Task task = TaskQueue.task2Queue.poll();
             log.info("当前第二层队列任务：{}", TaskQueue.task2Queue.size());
 
             DetailInfoDO detailInfoDO = new DetailInfoDO();
@@ -110,7 +109,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         staticInfoData.setMasterHotelId(hotelId);
         String data = JSONUtil.toJsonStr(staticInfoData);
         String jsonResult = HttpUtils.doPost(staticInfoUrl,data,getMap(),2000);
-        if(StringUtils.isNotEmpty(jsonResult)){
+        if(StringUtils.isNotEmpty(jsonResult) && JSONUtil.isJson(jsonResult)){
             String openTime = ReUtil.getGroup0("(?<=开业：)([0-9]*)",jsonResult);
             String decorateTime = ReUtil.getGroup0("(?<=装修时间：)([0-9]*)",jsonResult);
             String roomNum = ReUtil.getGroup0("(?<=客房数：)([0-9]*)",jsonResult);
@@ -129,7 +128,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
         Map<String,String> headers = getMap(hotelId);
         log.info("酒店id{}正在执行",hotelId);
         String jsonResult = HttpUtils.doGet(roomUrl + "?hotel=" + hotelId,headers,2000);
-        if(StringUtils.isNotEmpty(jsonResult)){
+        if(StringUtils.isNotEmpty(jsonResult) && JSONUtil.isJson(jsonResult)){
             JSONObject object = JSONObject.parseObject(jsonResult);
             String html = object.getString("html");
             List<RoomInfo> roomInfos = parseDom(html);

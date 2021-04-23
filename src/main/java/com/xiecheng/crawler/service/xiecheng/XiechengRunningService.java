@@ -1,8 +1,8 @@
-package com.xiecheng.crawler.service.impl;
+package com.xiecheng.crawler.service.xiecheng;
 
-import com.xiecheng.crawler.service.RunningService;
-import com.xiecheng.crawler.service.biz.FirstDepthCrawlerBiz;
-import com.xiecheng.crawler.service.biz.SecondDepthCrawlerBiz;
+import com.xiecheng.crawler.service.RunningStrategyService;
+import com.xiecheng.crawler.service.xiecheng.biz.FirstDepthCrawlerBiz;
+import com.xiecheng.crawler.service.xiecheng.biz.SecondDepthCrawlerBiz;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,12 +11,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
+ * 携程采集策略
  * @author nijichang
  * @since 2020-11-06 15:11:42
  */
 @Service
 @Slf4j
-public class RunningServiceImpl implements RunningService {
+public class XiechengRunningService implements RunningStrategyService {
 
     @Resource
     private FirstDepthCrawlerBiz firstDepthCrawlerBiz;

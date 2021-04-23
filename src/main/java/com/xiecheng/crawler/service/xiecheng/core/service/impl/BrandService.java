@@ -1,4 +1,4 @@
-package com.xiecheng.crawler.service.core.service.impl;
+package com.xiecheng.crawler.service.xiecheng.core.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xiecheng.crawler.entity.po.BrandDO;
