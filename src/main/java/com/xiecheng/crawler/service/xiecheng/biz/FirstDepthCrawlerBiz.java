@@ -7,7 +7,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.xiecheng.crawler.function.Consumer;
+import com.xiecheng.crawler.function.SConsumer;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.HotelInfoService;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.enums.StarEnum;
@@ -176,7 +176,7 @@ public class FirstDepthCrawlerBiz extends AbstractCrawlerBiz{
     }
 
     private void setTypeAndBrand(HotelInfoDO hotelInfoDO,String param,int paramTag,int depthTag){
-        Map<List<Integer>, Consumer> actionMap = new HashMap<>(6);
+        Map<List<Integer>, SConsumer> actionMap = new HashMap<>(6);
         actionMap.put(Lists.newArrayList(1, 0), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)", param)).map(TypeEnum::getDesc).orElse(null)));
         actionMap.put(Lists.newArrayList(1, 1), () -> hotelInfoDO.setType(TypeEnum.getByCode(ReUtil.getGroup0("(?<=type=)(.*)(?=&)", param)).map(TypeEnum::getDesc).orElse(null)));
         actionMap.put(Lists.newArrayList(2, 0), () ->

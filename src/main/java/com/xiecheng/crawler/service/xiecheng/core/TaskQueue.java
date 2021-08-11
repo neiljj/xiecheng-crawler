@@ -15,14 +15,13 @@ import com.xiecheng.crawler.entity.po.CityDO;
 import com.xiecheng.crawler.entity.po.CrawlerTaskDO;
 import com.xiecheng.crawler.entity.po.HotelInfoDO;
 import com.xiecheng.crawler.enums.TypeEnum;
-import com.xiecheng.crawler.function.Consumer;
+import com.xiecheng.crawler.function.SConsumer;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.BrandService;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.CityService;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.CrawlerTaskService;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.HotelInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
-import org.omg.CORBA.SystemException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -71,7 +70,7 @@ public class TaskQueue {
      */
     public static Map<String,String> citys = new LinkedHashMap<>();
 
-    @Scheduled(cron = "${crawler.cron}")
+ //   @Scheduled(cron = "${crawler.cron}")
     public void saveTaskToQueue(){
         //查询所有待采集任务入队列
         log.info("定时读取待采集任务");
@@ -94,7 +93,7 @@ public class TaskQueue {
             task.setDepthTag(0);
 
             //参数类型改为匹配
-            Map<List<Boolean>, Consumer> actionMap = new HashMap<>(4);
+            Map<List<Boolean>, SConsumer> actionMap = new HashMap<>(4);
             actionMap.put(Lists.newArrayList(true,true), () -> task.setParamTag(3));
             actionMap.put(Lists.newArrayList(true,false),() -> task.setParamTag(2));
             actionMap.put(Lists.newArrayList(false,true),() -> task.setParamTag(1));
@@ -159,7 +158,7 @@ public class TaskQueue {
                 task.setParam(param);
                 task.setDepthTag(0);
                 //参数类型改为匹配
-                Map<List<Boolean>, Consumer> actionMap = new HashMap<>(4);
+                Map<List<Boolean>, SConsumer> actionMap = new HashMap<>(4);
                 actionMap.put(Lists.newArrayList(true, true), () -> task.setParamTag(3));
                 actionMap.put(Lists.newArrayList(true, false), () -> task.setParamTag(2));
                 actionMap.put(Lists.newArrayList(false, true), () -> task.setParamTag(1));

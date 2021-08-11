@@ -4,6 +4,8 @@ import cn.hutool.core.util.ReUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.xiecheng.crawler.constant.MessageConstant;
 import com.xiecheng.crawler.entity.ResponseResult;
+import com.xiecheng.crawler.enums.CookieTypeEnum;
+import com.xiecheng.crawler.enums.CrawlerEnum;
 import com.xiecheng.crawler.enums.TypeEnum;
 import com.xiecheng.crawler.service.xiecheng.core.TaskQueue;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.CookieService;
@@ -35,6 +37,8 @@ public class InitController {
         DATA_MAP.put("city", TaskQueue.citys);
         DATA_MAP.put("brand", TaskQueue.brands);
         DATA_MAP.put("type", TypeEnum.toMap());
+        DATA_MAP.put("source", CrawlerEnum.toMap());
+        DATA_MAP.put("cookieType", CookieTypeEnum.toMap());
         return ResponseResult.success(DATA_MAP);
     }
 

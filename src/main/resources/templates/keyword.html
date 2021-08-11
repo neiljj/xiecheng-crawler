@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>数据管理后台</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico}"/>
+    <link rel="bookmark" th:href="@{/favicon.ico}"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" href="../static/layui/css/layui.css">
+
+</head>
+<body>
+<form class="layui-form">
+    <!-- 内容主体区域 -->
+    <div class="" style="padding: 15px;">
+        <div class="layui-row">
+            <!-- layui表单 -->
+            <form class="layui-form">
+                <!-- layui-inline 在一个行中显示多个div -->
+                <div class="layui-inline">
+                    <a href="javascript:void(0)" id="btnAddKeyword" class="layui-btn">添加关键词</a>
+                </div>
+
+                <div class="layui-inline">
+                    <a href="javascript:void(0)" id="startFactoryOnce" class="layui-btn">启动</a>
+                </div>
+
+            </form>
+        </div>
+
+        <!--
+    layui-table 代表是一个表格
+    url : ajax获取数据的地址
+    page : 自动生成分页栏
+    height:auto 表格高度随着内容自适应
+    lay-filter相当于layui自己使用的ID
+-->
+        <table class="layui-table" id="keyword_table" lay-filter="keyword_table">
+        </table>
+    </div>
+</form>
+<script type="text/javascript" src="../static/layui/layui.js" th:src="@{/layui/layui.js}"></script>
+<script type="text/javascript" th:inline="javascript" src="../static/js/keyword.js" th:src="@{/js/keyword.js}"></script>
+<script src="../static/js/common.js" th:src="@{/js/common.js}"></script>
+<script type="text/html" id="isDeleteEnum">
+    {{# if(d.isDelete === 0){ }}
+    是
+    {{# }else if(d.isDelete === 1){ }}
+    否
+    {{# } }}
+</script>
+<script type="text/html" id="dateFormat">
+    <div>{{layui.util.toDateString(d.createTime, 'yyyy-MM-dd HH:mm:ss')}}</div>
+</script>
+
+
+<div class="site-text" style="margin: 5%; display: none" id="window"  target="test123">
+    <form class="layui-form" id="book" method="post" lay-filter="example">
+        <div class="layui-form-item">
+            <label class="layui-form-label">关键词</label>
+            <div class="layui-input-block">
+                <input type="text" id="keyword" name="keyword" lay-verify="title" autocomplete="off" placeholder="多个关键词以|隔开" class="layui-input">
+            </div>
+
+        </div>
+        <div class="layui-form-item" pane="">
+            <label class="layui-form-label">采集源</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="百度资讯" title="百度资讯" value="百度资讯" checked="" lay-skin="primary">
+                <input type="checkbox" name="百度贴吧" title="百度贴吧" value="百度贴吧" checked="" lay-skin="primary">
+                <input type="checkbox" name="百度知道" title="百度知道" value="百度知道" checked="" lay-skin="primary">
+                <input type="checkbox" name="微博" title="微博" value="微博" checked="" lay-skin="primary">
+                <input type="checkbox" name="迈点" title="迈点" value="迈点" checked="" lay-skin="primary">
+                <input type="checkbox" name="酒店高参" title="酒店高参" value="酒店高参" checked="" lay-skin="primary">
+                <input type="checkbox" name="环球旅讯" title="环球旅讯" value="环球旅讯" checked="" lay-skin="primary">
+                <input type="checkbox" name="知乎" title="知乎" value="知乎" checked="" lay-skin="primary">
+
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/html" id="bar">
+    <a class="layui-btn layui-btn-danger layui-btn-mini" lay-event="del">删除</a>
+</script>
+</body>
+</html>

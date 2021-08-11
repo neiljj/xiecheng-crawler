@@ -14,9 +14,11 @@ CREATE TABLE `city` (
 
 CREATE TABLE `cookie` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `type` tinyint DEFAULT NULL,
   `cookie` text,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `crawler_task` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -72,3 +74,38 @@ CREATE TABLE `hotel_info` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `url` (`url`)
 ) ENGINE=InnoDB AUTO_INCREMENT=184260 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `news_info` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
+  `content` text COMMENT '内容',
+  `url` varchar(255) NOT NULL COMMENT 'url',
+  `time` varchar(255) NOT NULL COMMENT '发布时间',
+  `source` varchar(255) NOT NULL COMMENT '来源',
+  `keyword` varchar(255) NOT NULL,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_idx` (`url`),
+  KEY `new_idx` (`title`),
+  KEY `source_idx` (`source`),
+  KEY `keyword_idx` (`keyword`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1320 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `keyword` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `keyword` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '关键词,多个以|隔开',
+  `source` varchar(255) DEFAULT NULL,
+  `user_id` bigint NOT NULL,
+  `is_delete` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除',
+  `create_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `keyword_source` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `keyword_id` bigint NOT NULL,
+  `keyword` varchar(255) NOT NULL,
+  `source` varchar(255) NOT NULL,
+  `is_delete` tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

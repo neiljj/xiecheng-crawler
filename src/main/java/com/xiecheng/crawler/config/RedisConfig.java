@@ -18,6 +18,8 @@ public class RedisConfig {
 
     public static final String NEW_CRAWLER_TASK = "newTask";
 
+    public static final String COOKIE_UPDATE = "updateCookie";
+
     /**
      * redis消息监听器
      *
@@ -29,6 +31,7 @@ public class RedisConfig {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory);
         container.addMessageListener(redisNewTaskListener, ChannelTopic.of(NEW_CRAWLER_TASK));
+        container.addMessageListener(redisNewTaskListener,ChannelTopic.of(COOKIE_UPDATE));
         return container;
     }
 }

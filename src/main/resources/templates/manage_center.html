@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>携程数据管理后台</title>
+    <title>爬虫数据管理后台</title>
     <link rel="shortcut icon" th:href="@{/favicon.ico}"/>
     <link rel="bookmark" th:href="@{/favicon.ico}"/>
     <link rel="stylesheet" th:href="@{/layui/css/layui.css}" href="../static/layui/css/layui.css">
@@ -13,16 +13,16 @@
 <div class="layui-layout layui-layout-admin">
     <!--头部导航栏部分-->
     <div class="layui-header layui-bg-cyan">
-        <div class="layui-logo">数据后台管理</div>
+        <div class="layui-logo">爬虫数据后台管理</div>
         <ul class="layui-nav layui-layout-right">
             <li class="layui-nav-item">
                 <a href="javascript:;">
                     <img src="https://www.xmlvhy.com/images/user.png" class="layui-nav-img">
-                    <span th:text="${customer.name}">小莫先生</span>
+                    <span th:text="${customer.name}"></span>
                 </a>
                 <dl class="layui-nav-child" style="text-align: center">
                     <dd><a href="javascript:void(0);" th:href="@{/logout}">退出系统</a></dd>
-                    <dd><a href="javascript:void(0);" onclick="customerInfo()">基本资料</a></dd>
+                    <!--<dd><a href="javascript:void(0);" onclick="customerInfo()">基本资料</a></dd>-->
                 </dl>
             </li>
             <!--<li class="layui-nav-item"><a href="">退出</a></li>-->
@@ -34,9 +34,14 @@
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree" lay-filter="test">
-                <li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/crawler_task" data-title="采集任务管理" data-type="tabAdd" data-id="1" id="ct"><a>采集任务管理</a></li>
-                <li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/hotel_info" data-title="酒店信息" data-type="tabAdd" data-id="2"><a>酒店信息</a></li>
-                <li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/detail_info" data-title="酒店详情" data-type="tabAdd" data-id="3"><a>酒店详情</a></li>
+
+                <li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/keyword" data-title="关键词" data-type="tabAdd" data-id="1" id="ct"><a>关键词</a></li>
+                <li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/news_info" data-title="新闻信息" data-type="tabAdd" data-id="2" ><a>新闻信息</a></li>
+                <li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/cookie" data-title="cookie" data-type="tabAdd" data-id="3" ><a>cookie(开发人员专用，勿动！)</a></li>
+
+                <!--<li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/crawler_task" data-title="采集任务管理" data-type="tabAdd" data-id="4"><a>采集任务管理</a></li>-->
+                <!--<li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/hotel_info" data-title="酒店信息" data-type="tabAdd" data-id="5"><a>酒店信息</a></li>-->
+                <!--<li class="layui-nav-item layui-nav-itemed" data-url="/crawler/manage/detail_info" data-title="酒店详情" data-type="tabAdd" data-id="6"><a>酒店详情</a></li>-->
             </ul>
         </div>
     </div>
@@ -54,8 +59,8 @@
 
     <!-- 底部固定区域 -->
     <div class="layui-footer" align="center">
-        <span class="layui-text"><b>郑重声明:此站涉及的相关数据仅用于学习交流，不得用于商业用途。</b></span>
-        <span class="layui-text">Copyright © 2020 BY 杰尼</span>
+        <!--<span class="layui-text"><b>郑重声明:此站涉及的相关数据仅用于学习交流，不得用于商业用途。</b></span>-->
+        <span class="layui-text">Copyright © 2021 BY 杰尼</span>
     </div>
 </div>
 <!-- 利用JS初始化上面的table组件 -->

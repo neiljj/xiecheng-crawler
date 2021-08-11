@@ -6,7 +6,7 @@ package com.xiecheng.crawler.function;
  * @since 2020-11-14 15:19:58
  */
 @FunctionalInterface
-public interface Consumer {
+public interface SConsumer {
 
     void apply();
 }

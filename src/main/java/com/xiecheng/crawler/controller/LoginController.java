@@ -8,7 +8,7 @@ import com.xiecheng.crawler.constant.MessageConstant;
 import com.xiecheng.crawler.entity.ResponseResult;
 import com.xiecheng.crawler.entity.po.CustomerDO;
 import com.xiecheng.crawler.entity.vo.CustomerVo;
-import com.xiecheng.crawler.utils.mapstruct.Mapping;
+import com.xiecheng.crawler.utils.mapstruct.DataMapping;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.CustomerService;
 import com.xiecheng.crawler.utils.JwtUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,6 +30,9 @@ public class LoginController {
 
     @Resource
     private CustomerService customerService;
+
+    @Resource
+    private DataMapping dataMapping;
 
     @RequestMapping("/")
     public String index(){
@@ -65,7 +68,7 @@ public class LoginController {
         if(ObjectUtils.isNotEmpty(customerService.getOne(wrapper))){
             return ResponseResult.fail(MessageConstant.USER_ALREADY_EXIT);
         }
-        CustomerDO customerDO =  Mapping.instance.toCustomerDoO(customerVo);
+        CustomerDO customerDO =  dataMapping.toCustomerDoO(customerVo);
         customerDO.setPassword(SecureUtil.md5(customerDO.getPassword()));
         if(customerService.save(customerDO)){
             return ResponseResult.success(MessageConstant.REGISTER_SUCESS);

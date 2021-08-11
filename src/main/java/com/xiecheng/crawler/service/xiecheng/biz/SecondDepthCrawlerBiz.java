@@ -127,7 +127,7 @@ public class SecondDepthCrawlerBiz extends AbstractCrawlerBiz{
     public String getRoomInfo(String hotelId){
         Map<String,String> headers = getMap(hotelId);
         log.info("酒店id{}正在执行",hotelId);
-        String jsonResult = HttpUtils.doGet(roomUrl + "?hotel=" + hotelId,headers,2000);
+        String jsonResult = HttpUtils.doGet(roomUrl + "?hotel=" + hotelId,headers,2000,"UTF-8");
         if(StringUtils.isNotEmpty(jsonResult) && JSONUtil.isJson(jsonResult)){
             JSONObject object = JSONObject.parseObject(jsonResult);
             String html = object.getString("html");

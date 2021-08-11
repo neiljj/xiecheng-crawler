@@ -17,7 +17,7 @@ import com.xiecheng.crawler.entity.vo.req.QryDetailInfoReq;
 import com.xiecheng.crawler.entity.vo.req.QryHotelInfoReq;
 import com.xiecheng.crawler.service.xiecheng.core.service.impl.*;
 import com.xiecheng.crawler.utils.JwtUtils;
-import com.xiecheng.crawler.utils.mapstruct.Mapping;
+import com.xiecheng.crawler.utils.mapstruct.DataMapping;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -55,7 +55,11 @@ public class CrawlerDataController {
     @Resource
     private CookieService cookieService;
 
+    @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private DataMapping dataMapping;
 
     @RequestMapping("/show_hotel_info")
     @ResponseBody
@@ -156,7 +160,7 @@ public class CrawlerDataController {
             return ResponseResult.fail(MessageConstant.TASK_EXIT);
         }
         req.setStatus(0);
-        CrawlerTaskDO crawlerTaskDO = Mapping.instance.toCrawlerTaskDO(req);
+        CrawlerTaskDO crawlerTaskDO = dataMapping.toCrawlerTaskDO(req);
         crawlerTaskDO.setCreateTime(new Date());
         crawlerTaskService.save(crawlerTaskDO);
         //新增任务发送监听消息
@@ -194,5 +198,20 @@ public class CrawlerDataController {
     @RequestMapping("/detail_info")
     public String detailInfo(){
         return "detail_info";
+    }
+
+    @RequestMapping("/keyword")
+    public String keyword(){
+        return "keyword";
+    }
+
+    @RequestMapping("/news_info")
+    public String newsInfo(){
+        return "news_info";
+    }
+
+    @RequestMapping("/cookie")
+    public String cookie(){
+        return "cookie";
     }
 }

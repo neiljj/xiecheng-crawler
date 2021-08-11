@@ -1,12 +1,7 @@
 package com.xiecheng.crawler.controller;
 
-import com.xiecheng.crawler.entity.ResponseResult;
-import com.xiecheng.crawler.service.RunningStrategyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
 
 /**
  * 爬虫启动
@@ -18,7 +13,7 @@ import javax.annotation.Resource;
 public class CrawlerController {
 
 //    @Resource
-//    private RunningStrategyService runningService ;
+//    private RunningStrategy runningService ;
 //
 //    @RequestMapping("/run")
 //    @ResponseBody
