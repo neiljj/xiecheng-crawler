@@ -158,4 +158,19 @@ public class Utils {
         String time = "昨天";
         System.out.println(offsetToDateString(time));
     }
+
+    // 双重检测单例
+
+    public volatile static Utils utils;
+
+    public static Utils getUtils(){
+        if(utils == null){
+            synchronized (Utils.class){
+                if(utils == null){
+                    utils = new Utils();
+                }
+            }
+        }
+        return utils;
+    }
 }
